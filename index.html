@@ -1,0 +1,2566 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>초등 영어 AI 발음 마스터 PRO</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Google Fonts: Inter & Gaegu (손글씨 느낌으로 초등 분위기 연출) -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&family=Gaegu:wght@400;700&display=swap" rel="stylesheet">
+    <!-- FontAwesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    <style>
+        body {
+            font-family: 'Inter', 'Gaegu', sans-serif;
+            background: linear-gradient(135deg, #f0f7ff 0%, #e0e7ff 100%);
+        }
+        .elementary-title {
+            font-family: 'Gaegu', cursive;
+        }
+        /* Bounce & Active pulse animations */
+        @keyframes customPulse {
+            0%, 100% { transform: scale(1); opacity: 1; }
+            50% { transform: scale(1.1); opacity: 0.9; }
+        }
+        .pulse-active {
+            animation: customPulse 1s infinite;
+        }
+
+        /* PRINT STYLE SHEETS (Hidden on Screen, formatted beautifully on Paper) */
+        @media print {
+            body {
+                background: #ffffff !important;
+                color: #000000 !important;
+                font-family: 'Inter', sans-serif !important;
+            }
+            .no-print {
+                display: none !important;
+            }
+            .print-area {
+                display: block !important;
+                width: 100% !important;
+            }
+            .print-card {
+                border: 1px solid #000000 !important;
+                page-break-inside: avoid;
+            }
+        }
+    </style>
+</head>
+<body class="min-h-screen text-slate-800 pb-12">
+
+    <!-- Top Navigation / Header -->
+    <header class="bg-white/80 backdrop-blur-md border-b border-indigo-100 sticky top-0 z-50 shadow-sm transition-all no-print">
+        <div class="max-w-7xl mx-auto px-4 py-3 flex flex-wrap justify-between items-center gap-4">
+            <div class="flex items-center space-x-3">
+                <div class="w-11 h-11 bg-gradient-to-tr from-indigo-500 to-purple-500 rounded-full flex items-center justify-center text-white shadow-md shadow-indigo-200">
+                    <i class="fa-solid fa-graduation-cap text-xl"></i>
+                </div>
+                <div>
+                    <h1 class="text-2xl md:text-3xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-indigo-600 to-purple-600 elementary-title leading-tight">
+                        초등 영어 AI 발음 마스터 PRO 🏫🌟
+                    </h1>
+                    <p class="text-xs text-slate-500 font-medium tracking-wide">오프라인 사전 내장 · CSV 가져오기/내보내기 · AI 말하기 분석</p>
+                </div>
+            </div>
+            <!-- Settings Badge / Indicator -->
+            <div class="flex items-center space-x-2 bg-indigo-50 px-4 py-2 rounded-full border border-indigo-100">
+                <span class="w-2.5 h-2.5 rounded-full bg-emerald-500 animate-pulse"></span>
+                <span class="text-xs font-semibold text-indigo-700 uppercase tracking-wider" id="engine-status">Browser TTS Active</span>
+            </div>
+        </div>
+    </header>
+
+    <main class="max-w-7xl mx-auto px-4 mt-6 no-print">
+
+        <!-- PRIMARY MODE SWITCHER (발음 교실 ↔ 점수 기록부) -->
+        <div class="bg-white rounded-3xl p-2 shadow-lg border border-indigo-50/50 flex gap-1 mb-6 max-w-md mx-auto sm:mx-0">
+            <button id="mode-btn-classroom" class="flex-1 py-2.5 rounded-2xl text-sm font-extrabold transition-all bg-indigo-600 text-white shadow-sm flex items-center justify-center gap-2">
+                🏫 발음 교실
+            </button>
+            <button id="mode-btn-gradebook" class="flex-1 py-2.5 rounded-2xl text-sm font-extrabold transition-all text-slate-500 hover:text-indigo-600 flex items-center justify-center gap-2">
+                📊 점수 기록부
+            </button>
+        </div>
+
+        <!-- ============ VIEW 1: CLASSROOM ============ -->
+        <div id="view-classroom">
+        <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
+
+            <!-- LEFT COLUMN: Words Input & Settings Panel (Width: 4/12 for optimal desktop ratio) -->
+            <section class="lg:col-span-4 space-y-4">
+
+                <!-- Tab Controls to switch between Input and Settings -->
+                <div class="bg-white rounded-3xl p-2 shadow-lg border border-indigo-50/50 flex space-x-1">
+                    <button id="tab-btn-input" class="flex-1 py-2.5 rounded-2xl text-xs font-bold transition-all bg-indigo-600 text-white shadow-sm flex items-center justify-center gap-1.5">
+                        <i class="fa-solid fa-file-pen"></i> 단어 입력 & 저장
+                    </button>
+                    <button id="tab-btn-config" class="flex-1 py-2.5 rounded-2xl text-xs font-bold transition-all text-slate-500 hover:text-indigo-600 flex items-center justify-center gap-1.5">
+                        <i class="fa-solid fa-sliders"></i> 목소리 & 설정
+                    </button>
+                </div>
+
+                <!-- TAB CONTAINER 1: Word Input & Storage -->
+                <div id="tab-content-input" class="space-y-4 transition-all duration-300">
+                    <!-- Word Input Card -->
+                    <div class="bg-white rounded-3xl p-5 shadow-xl border border-indigo-50/50">
+                        <div class="flex justify-between items-center mb-3">
+                            <h2 class="text-base font-extrabold flex items-center gap-2 text-slate-800">
+                                <i class="fa-solid fa-list-check text-indigo-500"></i>
+                                단어 입력하기 (최대 20개)
+                            </h2>
+                            <!-- Sample Loader -->
+                            <div class="relative group">
+                                <button id="btn-sample" class="text-[11px] bg-indigo-50 hover:bg-indigo-100 text-indigo-600 font-bold px-2.5 py-1.5 rounded-xl border border-indigo-200/50 transition flex items-center gap-1">
+                                    <i class="fa-solid fa-wand-magic-sparkles"></i> 샘플 채우기
+                                </button>
+                                <!-- Sample selection menu -->
+                                <div id="sample-menu" class="hidden absolute right-0 mt-2 w-44 bg-white border border-slate-100 rounded-2xl shadow-2xl z-50 py-1.5 divide-y divide-slate-50">
+                                    <button onclick="loadSamplePreset('animals')" class="w-full text-left px-4 py-2 hover:bg-slate-50 text-xs font-semibold text-slate-700 flex items-center gap-2">🦁 동물 친구들</button>
+                                    <button onclick="loadSamplePreset('fruits')" class="w-full text-left px-4 py-2 hover:bg-slate-50 text-xs font-semibold text-slate-700 flex items-center gap-2">🍎 과일 & 채소</button>
+                                    <button onclick="loadSamplePreset('classroom')" class="w-full text-left px-4 py-2 hover:bg-slate-50 text-xs font-semibold text-slate-700 flex items-center gap-2">✏️ 교실 물건들</button>
+                                    <button onclick="loadSamplePreset('feelings')" class="w-full text-left px-4 py-2 hover:bg-slate-50 text-xs font-semibold text-slate-700 flex items-center gap-2">😄 감정과 기분</button>
+                                </div>
+                            </div>
+                        </div>
+
+                        <textarea id="words-textarea" class="w-full h-32 border-2 border-slate-200 rounded-2xl p-3 text-sm focus:ring-4 focus:ring-indigo-100 focus:border-indigo-500 outline-none transition resize-none placeholder-slate-400 font-medium" placeholder="apple&#10;banana&#10;orange&#10;grape&#10;watermelon..."></textarea>
+
+                        <div class="mt-3 flex gap-2">
+                            <button id="btn-clear-input" class="flex-1 bg-slate-50 hover:bg-slate-100 text-slate-600 font-bold py-2.5 px-3 rounded-2xl border border-slate-200 transition-all flex items-center justify-center gap-1.5 text-xs">
+                                <i class="fa-solid fa-trash-can"></i> 비우기
+                            </button>
+                            <button id="btn-generate" class="flex-[2] bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-700 hover:to-purple-700 text-white font-bold py-2.5 px-3 rounded-2xl shadow-lg shadow-indigo-100 hover:shadow-indigo-200 transition-all flex items-center justify-center gap-1.5 text-xs">
+                                <i class="fa-solid fa-circle-check"></i> 발음 보드 생성
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Lesson Storage (Save & Load) -->
+                    <div class="bg-white rounded-3xl p-5 shadow-xl border border-indigo-50/50">
+                        <h2 class="text-base font-extrabold flex items-center gap-2 text-slate-800 mb-2">
+                            <i class="fa-solid fa-box-archive text-amber-500"></i>
+                            나만의 단어장 보관함 💾
+                        </h2>
+                        <div class="flex gap-2 mb-3">
+                            <input type="text" id="storage-name-input" placeholder="예: 3학년 1단원" class="flex-1 border border-slate-200 rounded-xl px-3 py-1.5 text-xs focus:ring-2 focus:ring-indigo-200 focus:border-indigo-500 outline-none">
+                            <button id="btn-save-storage" class="bg-indigo-500 hover:bg-indigo-600 text-white font-bold px-3 py-1.5 rounded-xl text-xs transition">저장</button>
+                        </div>
+                        <div id="storage-list-container" class="space-y-1.5 max-h-32 overflow-y-auto pr-1">
+                            <!-- Dynamic list items from Local Storage -->
+                            <div class="text-[11px] text-slate-400 text-center py-2">보관된 단어장이 없습니다.</div>
+                        </div>
+                    </div>
+
+                    <!-- CSV Import / Export -->
+                    <div class="bg-white rounded-3xl p-5 shadow-xl border border-indigo-50/50">
+                        <h2 class="text-base font-extrabold flex items-center gap-2 text-slate-800 mb-1">
+                            <i class="fa-solid fa-file-csv text-emerald-500"></i>
+                            파일 가져오기 / 내보내기 📁
+                        </h2>
+                        <p class="text-[11px] text-slate-400 mb-3 leading-relaxed">
+                            CSV(엑셀) 파일로 단어장을 주고받을 수 있어요.<br>
+                            열 순서: <b class="text-slate-600">단어, 뜻, 파닉스, 예문(영), 예문(한)</b> — 단어만 있어도 OK!
+                        </p>
+                        <div class="flex gap-2">
+                            <label class="flex-1 cursor-pointer bg-emerald-50 hover:bg-emerald-100 text-emerald-700 font-bold py-2.5 px-3 rounded-2xl border border-emerald-200 transition flex items-center justify-center gap-1.5 text-xs">
+                                <i class="fa-solid fa-file-import"></i> CSV 가져오기
+                                <input type="file" id="csv-import-input" accept=".csv,.txt" class="hidden">
+                            </label>
+                            <button id="btn-csv-export" class="flex-1 bg-slate-50 hover:bg-slate-100 text-slate-700 font-bold py-2.5 px-3 rounded-2xl border border-slate-200 transition flex items-center justify-center gap-1.5 text-xs">
+                                <i class="fa-solid fa-file-export"></i> CSV 내보내기
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- TAB CONTAINER 2: Advanced Voice Settings -->
+                <div id="tab-content-config" class="hidden space-y-4 transition-all duration-300">
+                    <div class="bg-white rounded-3xl p-5 shadow-xl border border-indigo-50/50 space-y-4">
+                        <h2 class="text-base font-extrabold flex items-center gap-2 text-slate-800">
+                            <i class="fa-solid fa-sliders text-purple-500"></i>
+                            목소리 및 반복 설정
+                        </h2>
+
+                        <!-- Repetition Count -->
+                        <div>
+                            <label class="block text-xs font-extrabold text-slate-500 uppercase tracking-wider mb-2 flex justify-between">
+                                <span>기본 반복 횟수</span>
+                                <span id="label-rep" class="text-indigo-600 font-bold">10회</span>
+                            </label>
+                            <input type="range" id="setting-rep" min="1" max="15" value="10" class="w-full h-2 bg-slate-100 rounded-lg appearance-none cursor-pointer accent-indigo-600">
+                        </div>
+
+                        <!-- TTS Engine Selection Toggle -->
+                        <div>
+                            <span class="block text-xs font-extrabold text-slate-500 uppercase tracking-wider mb-2">TTS 엔진 선택</span>
+                            <div class="grid grid-cols-2 gap-1.5 bg-slate-50 p-1 rounded-2xl border border-slate-100">
+                                <button id="engine-gemini" onclick="toggleEngine('gemini')" class="py-1.5 px-2 text-[11px] font-bold rounded-xl text-slate-500 hover:text-indigo-600 transition flex items-center justify-center gap-1">
+                                    <i class="fa-solid fa-wand-magic-sparkles text-purple-500"></i> Gemini AI
+                                </button>
+                                <button id="engine-local" onclick="toggleEngine('local')" class="py-1.5 px-2 text-[11px] font-bold rounded-xl bg-white text-indigo-600 shadow-sm border border-slate-200/50 transition flex items-center justify-center gap-1">
+                                    <i class="fa-solid fa-desktop text-blue-500"></i> 로컬 (권장)
+                                </button>
+                            </div>
+                            <p class="text-[10px] text-slate-400 mt-1.5 leading-relaxed">※ Gemini AI는 API 키가 필요합니다. 키가 없으면 자동으로 로컬 엔진을 사용합니다.</p>
+                        </div>
+
+                        <!-- Settings Checkboxes -->
+                        <div class="pt-2 border-t border-slate-100">
+                            <label class="flex items-center space-x-3 cursor-pointer p-1 rounded-lg hover:bg-slate-50">
+                                <input type="checkbox" id="setting-translate" checked class="rounded-md border-slate-300 text-indigo-600 focus:ring-indigo-500 w-4 h-4">
+                                <span class="text-xs font-semibold text-slate-600">사전에 없는 단어는 온라인 AI로 자동 채우기</span>
+                            </label>
+                            <p class="text-[10px] text-slate-400 mt-1 ml-8 leading-relaxed">내장 오프라인 사전(90여 단어)은 항상 자동 적용됩니다. 사전에 없는 단어만 AI로 보완해요.</p>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- RIGHT COLUMN: Interactive Board (Width: 8/12) -->
+            <section class="lg:col-span-8 space-y-4">
+                <!-- Board Controls / Stats -->
+                <div class="bg-indigo-600 rounded-3xl p-5 text-white shadow-xl shadow-indigo-100 flex flex-wrap justify-between items-center gap-4">
+                    <div>
+                        <h2 class="text-xl md:text-2xl font-black mb-0.5 elementary-title">오늘의 발음 교실 🏫</h2>
+                        <p class="text-[11px] text-indigo-100" id="board-summary">등록된 단어가 없습니다. 왼쪽 창에 채워주세요!</p>
+                    </div>
+
+                    <!-- View mode toggle and Print actions -->
+                    <div class="flex items-center flex-wrap gap-2.5">
+                        <!-- Dual Mode Layout Switcher -->
+                        <div class="bg-indigo-700/80 p-1 rounded-2xl border border-indigo-500/30 flex space-x-1">
+                            <button id="btn-view-list" class="px-3 py-1.5 rounded-xl text-xs font-bold transition-all bg-white text-indigo-700 shadow-sm" title="한눈에 들어오는 콤팩트 리스트">
+                                <i class="fa-solid fa-list-ul mr-1"></i> 슬림형
+                            </button>
+                            <button id="btn-view-card" class="px-3 py-1.5 rounded-xl text-xs font-bold transition-all text-white/80 hover:text-white" title="시원시원한 카드 바둑판">
+                                <i class="fa-solid fa-table-cells-large mr-1"></i> 카드형
+                            </button>
+                        </div>
+
+                        <button id="btn-shuffle" disabled class="bg-white/10 hover:bg-white/20 text-white font-bold py-2 px-3.5 rounded-2xl text-xs border border-white/20 transition flex items-center gap-1.5 disabled:opacity-40 disabled:cursor-not-allowed" title="단어 순서 섞기">
+                            <i class="fa-solid fa-shuffle"></i> 섞기
+                        </button>
+                        <button id="btn-play-all" disabled class="bg-white/10 hover:bg-white/20 text-white font-bold py-2 px-3.5 rounded-2xl text-xs border border-white/20 transition flex items-center gap-1.5 disabled:opacity-40 disabled:cursor-not-allowed">
+                            <i class="fa-solid fa-forward"></i> 자동 순차재생
+                        </button>
+                        <button onclick="openPrintPreview()" class="bg-amber-400 hover:bg-amber-500 text-slate-900 font-bold py-2 px-3.5 rounded-2xl text-xs shadow-md transition flex items-center gap-1.5">
+                            <i class="fa-solid fa-print"></i> 인쇄하기 📄
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Empty State -->
+                <div id="board-empty" class="bg-white rounded-3xl p-10 shadow-xl border border-indigo-50/50 text-center space-y-3">
+                    <div class="w-20 h-20 bg-indigo-50 rounded-full flex items-center justify-center mx-auto">
+                        <i class="fa-solid fa-volume-high text-3xl text-indigo-400"></i>
+                    </div>
+                    <div class="max-w-md mx-auto space-y-1.5">
+                        <h3 class="text-base font-bold text-slate-700">등록된 발음 보드가 없습니다.</h3>
+                        <p class="text-xs text-slate-400 leading-relaxed">
+                            선생님! 왼쪽에 단어를 입력한 뒤, <br><b>[발음 보드 생성]</b> 버튼을 눌러 발음 카드를 활성화해 주세요.
+                        </p>
+                    </div>
+                </div>
+
+                <!-- Active Board Word List Grid -->
+                <div id="board-active" class="hidden space-y-3">
+                    <!-- Progress bar -->
+                    <div class="bg-white p-3 rounded-2xl border border-indigo-50 shadow-sm flex items-center justify-between gap-4">
+                        <div class="text-xs font-bold text-slate-500 whitespace-nowrap">학습 정복도</div>
+                        <div class="flex-1 bg-slate-100 h-2 rounded-full overflow-hidden">
+                            <div id="board-progress" class="bg-gradient-to-r from-indigo-500 to-purple-500 h-full transition-all duration-300" style="width: 0%;"></div>
+                        </div>
+                        <div class="text-xs font-extrabold text-indigo-600 whitespace-nowrap" id="progress-text">0 / 20개 정복</div>
+                    </div>
+
+                    <!-- Target Card Grid (Toggled dynamically by JS viewMode) -->
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-2" id="word-cards-container">
+                        <!-- Word card template generated via JS -->
+                    </div>
+                </div>
+            </section>
+
+        </div>
+        </div><!-- /view-classroom -->
+
+        <!-- ============ VIEW 2: GRADEBOOK (점수 기록부) ============ -->
+        <div id="view-gradebook" class="hidden space-y-4">
+
+            <!-- Header -->
+            <div class="bg-indigo-600 rounded-3xl p-5 text-white shadow-xl shadow-indigo-100 flex flex-wrap justify-between items-center gap-4">
+                <div>
+                    <h2 class="text-xl md:text-2xl font-black mb-0.5 elementary-title">학생 점수 기록부 📊</h2>
+                    <p class="text-[11px] text-indigo-100" id="gradebook-summary">학생과 날짜를 추가해 점수를 기록하세요.</p>
+                </div>
+                <div class="flex items-center flex-wrap gap-2">
+                    <button id="gb-export" class="bg-amber-400 hover:bg-amber-500 text-slate-900 font-bold py-2 px-3.5 rounded-2xl text-xs shadow-md transition flex items-center gap-1.5">
+                        <i class="fa-solid fa-file-export"></i> CSV 내보내기
+                    </button>
+                    <button id="gb-clear" class="bg-white/10 hover:bg-rose-500/80 text-white font-bold py-2 px-3.5 rounded-2xl text-xs border border-white/20 transition flex items-center gap-1.5">
+                        <i class="fa-solid fa-trash-can"></i> 전체 초기화
+                    </button>
+                </div>
+            </div>
+
+            <!-- Add controls -->
+            <div class="bg-white rounded-3xl p-5 shadow-xl border border-indigo-50/50 grid md:grid-cols-2 gap-5">
+                <div>
+                    <label class="block text-xs font-extrabold text-slate-500 uppercase tracking-wider mb-2"><i class="fa-solid fa-user-plus text-indigo-500 mr-1"></i> 학생 추가 (세로축)</label>
+                    <div class="flex gap-2">
+                        <input type="text" id="gb-student-name" placeholder="학생 이름 (예: 홍길동)" class="flex-1 border-2 border-slate-200 rounded-xl px-3 py-2 text-sm focus:ring-2 focus:ring-indigo-200 focus:border-indigo-500 outline-none">
+                        <button id="gb-add-student" class="bg-indigo-600 hover:bg-indigo-700 text-white font-bold px-4 py-2 rounded-xl text-sm transition whitespace-nowrap">추가</button>
+                    </div>
+                </div>
+                <div>
+                    <label class="block text-xs font-extrabold text-slate-500 uppercase tracking-wider mb-2"><i class="fa-solid fa-calendar-plus text-purple-500 mr-1"></i> 날짜(시험) 추가 (가로축)</label>
+                    <div class="flex gap-2">
+                        <input type="date" id="gb-date-input" class="flex-1 min-w-0 border-2 border-slate-200 rounded-xl px-3 py-2 text-sm focus:ring-2 focus:ring-indigo-200 focus:border-indigo-500 outline-none">
+                        <input type="number" id="gb-date-total" placeholder="만점" min="1" class="w-20 border-2 border-slate-200 rounded-xl px-2 py-2 text-sm focus:ring-2 focus:ring-indigo-200 focus:border-indigo-500 outline-none" title="만점(문항 수) - 비워도 됩니다">
+                        <button id="gb-add-date" class="bg-purple-600 hover:bg-purple-700 text-white font-bold px-4 py-2 rounded-xl text-sm transition whitespace-nowrap">추가</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Cloud Sync -->
+            <div class="bg-white rounded-3xl p-5 shadow-xl border border-sky-100">
+                <div class="flex items-center justify-between flex-wrap gap-2 mb-2">
+                    <h3 class="text-base font-extrabold flex items-center gap-2 text-slate-800">
+                        <i class="fa-solid fa-cloud text-sky-500"></i> 클라우드 동기화 <span class="text-[11px] font-semibold text-slate-400">(여러 컴퓨터 공유)</span>
+                    </h3>
+                    <span id="cloud-status" class="text-[11px] font-bold px-2.5 py-1 rounded-full bg-slate-100 text-slate-500">미연결</span>
+                </div>
+                <p class="text-[11px] text-slate-400 mb-3 leading-relaxed">구글 앱스 스크립트 웹앱 URL을 붙여넣고 [연결]하면, 어느 컴퓨터에서 접속해도 점수가 자동 동기화됩니다. 입력/수정 시 자동 저장돼요.</p>
+                <div class="flex flex-col sm:flex-row gap-2">
+                    <input type="text" id="cloud-url" placeholder="https://script.google.com/macros/s/..../exec" class="flex-1 min-w-0 border-2 border-slate-200 rounded-xl px-3 py-2 text-xs focus:ring-2 focus:ring-sky-200 focus:border-sky-500 outline-none">
+                    <input type="text" id="cloud-token" placeholder="암호(선택)" class="w-full sm:w-24 border-2 border-slate-200 rounded-xl px-3 py-2 text-xs focus:ring-2 focus:ring-sky-200 focus:border-sky-500 outline-none">
+                    <button id="cloud-connect" class="bg-sky-600 hover:bg-sky-700 text-white font-bold px-4 py-2 rounded-xl text-xs transition whitespace-nowrap">연결</button>
+                    <button id="cloud-reload" class="bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold px-4 py-2 rounded-xl text-xs transition whitespace-nowrap" title="클라우드에서 다시 불러오기">↻ 불러오기</button>
+                </div>
+            </div>
+
+            <!-- Score Table -->
+            <div class="bg-white rounded-3xl p-5 shadow-xl border border-indigo-50/50">
+                <h3 class="text-base font-extrabold flex items-center gap-2 text-slate-800 mb-3">
+                    <i class="fa-solid fa-table-cells text-indigo-500"></i> 점수표 <span class="text-[11px] font-semibold text-slate-400">(칸에 맞은 갯수를 입력하면 그날 등수가 자동 표시돼요)</span>
+                </h3>
+                <div id="gb-empty" class="text-center py-10 text-sm text-slate-400">
+                    <i class="fa-solid fa-clipboard-list text-3xl text-slate-200 mb-2 block"></i>
+                    학생과 날짜를 추가하면 점수표가 나타납니다.
+                </div>
+                <div class="overflow-x-auto">
+                    <table id="gb-table" class="hidden w-full border-collapse text-sm"></table>
+                </div>
+            </div>
+
+            <!-- Daily Ranking -->
+            <div class="bg-white rounded-3xl p-5 shadow-xl border border-indigo-50/50">
+                <div class="flex flex-wrap justify-between items-center gap-3 mb-4">
+                    <h3 class="text-base font-extrabold flex items-center gap-2 text-slate-800">
+                        <i class="fa-solid fa-ranking-star text-amber-500"></i> 날짜별 등수
+                    </h3>
+                    <select id="gb-rank-date" class="border-2 border-slate-200 rounded-xl px-3 py-1.5 text-sm font-bold text-slate-700 focus:ring-2 focus:ring-indigo-200 focus:border-indigo-500 outline-none"></select>
+                </div>
+                <div id="gb-ranking" class="space-y-2"></div>
+            </div>
+
+            <!-- Big Chart -->
+            <div class="bg-white rounded-3xl p-5 shadow-xl border border-indigo-50/50">
+                <div class="flex flex-wrap justify-between items-center gap-3 mb-4">
+                    <h3 class="text-base font-extrabold flex items-center gap-2 text-slate-800">
+                        <i class="fa-solid fa-chart-line text-indigo-500"></i> 점수 차트
+                    </h3>
+                    <div class="bg-slate-50 p-1 rounded-2xl border border-slate-100 flex gap-1">
+                        <button id="chart-btn-line" class="px-3 py-1.5 rounded-xl text-xs font-bold transition-all bg-white text-indigo-600 shadow-sm border border-slate-200/50">
+                            <i class="fa-solid fa-chart-line mr-1"></i> 꺾은선 (추이)
+                        </button>
+                        <button id="chart-btn-bar" class="px-3 py-1.5 rounded-xl text-xs font-bold transition-all text-slate-500 hover:text-indigo-600">
+                            <i class="fa-solid fa-chart-column mr-1"></i> 막대 (평균)
+                        </button>
+                    </div>
+                </div>
+                <div id="chart-area" class="w-full overflow-x-auto"></div>
+                <div id="chart-legend" class="flex flex-wrap gap-x-4 gap-y-1.5 mt-3 justify-center"></div>
+            </div>
+
+        </div><!-- /view-gradebook -->
+    </main>
+
+    <!-- PRINT PREVIEW OVERLAY MODAL -->
+    <div id="print-modal" class="hidden fixed inset-0 bg-slate-900/60 backdrop-blur-sm flex items-center justify-center p-4 z-50 no-print">
+        <div class="bg-white rounded-3xl w-full max-w-lg p-6 shadow-2xl space-y-4">
+            <div class="flex justify-between items-center border-b pb-3">
+                <h3 class="text-lg font-bold text-slate-800"><i class="fa-solid fa-file-pdf text-indigo-500"></i> 인쇄 형식 선택하기</h3>
+                <button onclick="closePrintPreview()" class="text-slate-400 hover:text-slate-600"><i class="fa-solid fa-xmark text-lg"></i></button>
+            </div>
+            <p class="text-xs text-slate-500">인쇄 용지에 맞춰 최적화된 학습지 레이아웃을 제공합니다.</p>
+            <div class="grid grid-cols-2 gap-4">
+                <button onclick="triggerPrint('practice')" class="p-4 rounded-2xl border-2 border-indigo-50 hover:border-indigo-500 hover:bg-indigo-50/20 text-center transition flex flex-col items-center gap-2">
+                    <span class="text-2xl">✍️</span>
+                    <span class="text-xs font-bold text-slate-700">쓰기 연습장 형식</span>
+                    <span class="text-[10px] text-slate-400">영어 단어 따라쓰기 칸 포함</span>
+                </button>
+                <button onclick="triggerPrint('test')" class="p-4 rounded-2xl border-2 border-indigo-50 hover:border-indigo-500 hover:bg-indigo-50/20 text-center transition flex flex-col items-center gap-2">
+                    <span class="text-2xl">📝</span>
+                    <span class="text-xs font-bold text-slate-700">단원 평가 시험지</span>
+                    <span class="text-[10px] text-slate-400">뜻 시험을 위한 빈칸 포함</span>
+                </button>
+            </div>
+            <div class="pt-2 text-right">
+                <button onclick="closePrintPreview()" class="bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold py-2.5 px-5 rounded-xl text-xs transition">취소</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- REAL PRINTABLE AREA (Only displayed when window.print() is called) -->
+    <div class="hidden print-area p-8" id="printable-sheet">
+        <div class="text-center mb-6">
+            <h1 class="text-3xl font-extrabold text-black" id="print-title">초등 영어 단어 쓰기 학습지</h1>
+            <p class="text-sm text-slate-500 mt-2">Class: _________________  Name: _________________</p>
+        </div>
+        <div id="print-items-grid" class="grid grid-cols-1 gap-4">
+            <!-- Words dynamically rendered for paper -->
+        </div>
+    </div>
+
+    <!-- Toast Notification Anchor -->
+    <div id="toast-container" class="fixed bottom-6 right-6 z-50 space-y-2 pointer-events-none no-print"></div>
+
+    <!-- Phonics & Sandbox Card Detail Modal -->
+    <div id="detail-modal" class="hidden fixed inset-0 bg-slate-900/40 backdrop-blur-sm flex items-center justify-center p-4 z-50 no-print">
+        <div class="bg-white rounded-3xl w-full max-w-lg p-6 shadow-2xl space-y-6 transform scale-95 transition-all">
+            <div class="flex justify-between items-start">
+                <div class="flex items-center space-x-3">
+                    <span id="modal-badge" class="bg-indigo-50 text-indigo-600 font-extrabold px-3 py-1 rounded-xl text-xs">Card 01</span>
+                    <h4 class="text-3xl font-black text-slate-800" id="modal-word">apple</h4>
+                </div>
+                <button onclick="closeDetailModal()" class="text-slate-400 hover:text-slate-600 p-2 rounded-xl hover:bg-slate-100 transition">
+                    <i class="fa-solid fa-xmark text-lg"></i>
+                </button>
+            </div>
+
+            <!-- Translation Card inside Modal -->
+            <div class="bg-slate-50 p-4 rounded-2xl border border-slate-100 space-y-3">
+                <div class="grid grid-cols-2 gap-4">
+                    <div>
+                        <div class="text-[10px] font-extrabold text-slate-400 uppercase tracking-wider">우리말 뜻</div>
+                        <div class="text-lg font-bold text-slate-800" id="modal-meaning">사과</div>
+                    </div>
+                    <div>
+                        <div class="text-[10px] font-extrabold text-slate-400 uppercase tracking-wider">파닉스 한글 독음</div>
+                        <div class="text-lg font-bold text-slate-800 flex items-center gap-1.5">
+                            <span class="text-purple-600" id="modal-phonics">애플</span>
+                            <i class="fa-solid fa-volume-low text-xs text-slate-400 cursor-pointer hover:text-indigo-600" id="btn-modal-phonics-speak"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Example sentence practice inside detail panel -->
+            <div class="space-y-2">
+                <div class="text-[10px] font-extrabold text-slate-400 uppercase tracking-wider">교실 추천 예문 (Elementary Level Example)</div>
+                <div class="bg-indigo-50/50 p-4 rounded-2xl border border-indigo-100/50 space-y-2">
+                    <p class="text-base font-bold text-indigo-900" id="modal-example-en">I eat a sweet apple.</p>
+                    <p class="text-xs text-slate-500 font-semibold" id="modal-example-ko">나는 달콤한 사과를 먹어요.</p>
+                </div>
+                <!-- Play Sentence Audio Button -->
+                <button id="btn-modal-play-sentence" class="w-full bg-indigo-100/75 hover:bg-indigo-100 text-indigo-700 font-bold py-2.5 px-4 rounded-xl text-xs transition flex items-center justify-center gap-2">
+                    <i class="fa-solid fa-volume-high"></i> 이 문장 원어민 목소리로 듣기
+                </button>
+            </div>
+
+            <div class="flex gap-2">
+                <button onclick="closeDetailModal()" class="w-full bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold py-3 px-4 rounded-2xl transition">닫기</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Core application state
+        let currentWords = [];
+        let isPlayingAll = false;
+        let activeAudioElement = null; // Storing HTML5 Audio reference
+        let currentPlayingWordIdx = null; // tracking index of active audio
+        let currentPlayingRep = 0; // tracking current repetition step globally
+        let activeWebSpeechTimer = null; // Local speech delay pointer
+        let selectedEngine = 'local'; // 'gemini' or 'local'
+        let viewMode = 'list'; // 'list' (compact row style) or 'grid' (classic card style)
+
+        // Web Audio API Context for generating chimes (no external URLs)
+        let audioCtx = null;
+
+        // ──────────────────────────────────────────────────────────────
+        // 📚 OFFLINE BUILT-IN DICTIONARY (인터넷/API 키 없이 동작)
+        //   key(소문자) → { meaning, phonics, example_en, example_ko }
+        // ──────────────────────────────────────────────────────────────
+        const OFFLINE_DICT = {
+            // 🦁 Animals
+            dog:{meaning:"개",phonics:"도그",example_en:"I have a big dog.",example_ko:"나는 큰 개가 있어요."},
+            cat:{meaning:"고양이",phonics:"캣",example_en:"The cat is cute.",example_ko:"그 고양이는 귀여워요."},
+            bird:{meaning:"새",phonics:"버드",example_en:"A bird can fly.",example_ko:"새는 날 수 있어요."},
+            lion:{meaning:"사자",phonics:"라이언",example_en:"The lion is strong.",example_ko:"사자는 힘이 세요."},
+            tiger:{meaning:"호랑이",phonics:"타이거",example_en:"The tiger runs fast.",example_ko:"호랑이는 빨리 달려요."},
+            bear:{meaning:"곰",phonics:"베어",example_en:"The bear likes honey.",example_ko:"곰은 꿀을 좋아해요."},
+            elephant:{meaning:"코끼리",phonics:"엘리펀트",example_en:"The elephant is big.",example_ko:"코끼리는 커요."},
+            monkey:{meaning:"원숭이",phonics:"멍키",example_en:"The monkey eats a banana.",example_ko:"원숭이는 바나나를 먹어요."},
+            rabbit:{meaning:"토끼",phonics:"래빗",example_en:"The rabbit jumps high.",example_ko:"토끼는 높이 뛰어요."},
+            giraffe:{meaning:"기린",phonics:"지래프",example_en:"The giraffe has a long neck.",example_ko:"기린은 목이 길어요."},
+            fox:{meaning:"여우",phonics:"폭스",example_en:"The fox is clever.",example_ko:"여우는 영리해요."},
+            deer:{meaning:"사슴",phonics:"디어",example_en:"The deer is gentle.",example_ko:"사슴은 온순해요."},
+            wolf:{meaning:"늑대",phonics:"울프",example_en:"The wolf lives in the forest.",example_ko:"늑대는 숲에 살아요."},
+            zebra:{meaning:"얼룩말",phonics:"지브라",example_en:"The zebra has stripes.",example_ko:"얼룩말은 줄무늬가 있어요."},
+            hippo:{meaning:"하마",phonics:"히포",example_en:"The hippo likes water.",example_ko:"하마는 물을 좋아해요."},
+            panda:{meaning:"판다",phonics:"팬더",example_en:"The panda eats bamboo.",example_ko:"판다는 대나무를 먹어요."},
+            koala:{meaning:"코알라",phonics:"코알라",example_en:"The koala sleeps a lot.",example_ko:"코알라는 잠을 많이 자요."},
+            penguin:{meaning:"펭귄",phonics:"펭귄",example_en:"The penguin cannot fly.",example_ko:"펭귄은 날 수 없어요."},
+            dolphin:{meaning:"돌고래",phonics:"돌핀",example_en:"The dolphin is smart.",example_ko:"돌고래는 똑똑해요."},
+            whale:{meaning:"고래",phonics:"웨일",example_en:"The whale is very big.",example_ko:"고래는 아주 커요."},
+
+            // 🍎 Fruits
+            apple:{meaning:"사과",phonics:"애플",example_en:"I eat a sweet apple.",example_ko:"나는 달콤한 사과를 먹어요."},
+            banana:{meaning:"바나나",phonics:"버내너",example_en:"The banana is yellow.",example_ko:"바나나는 노란색이에요."},
+            orange:{meaning:"오렌지",phonics:"오린지",example_en:"I like orange juice.",example_ko:"나는 오렌지 주스를 좋아해요."},
+            grape:{meaning:"포도",phonics:"그레이프",example_en:"Grapes are purple.",example_ko:"포도는 보라색이에요."},
+            strawberry:{meaning:"딸기",phonics:"스트로베리",example_en:"The strawberry is red.",example_ko:"딸기는 빨간색이에요."},
+            peach:{meaning:"복숭아",phonics:"피치",example_en:"The peach is soft.",example_ko:"복숭아는 부드러워요."},
+            melon:{meaning:"멜론",phonics:"멜론",example_en:"The melon is sweet.",example_ko:"멜론은 달아요."},
+            watermelon:{meaning:"수박",phonics:"워터멜론",example_en:"Watermelon is good in summer.",example_ko:"수박은 여름에 좋아요."},
+            cherry:{meaning:"체리",phonics:"체리",example_en:"The cherry is small.",example_ko:"체리는 작아요."},
+            lemon:{meaning:"레몬",phonics:"레몬",example_en:"The lemon is sour.",example_ko:"레몬은 시어요."},
+            lime:{meaning:"라임",phonics:"라임",example_en:"The lime is green.",example_ko:"라임은 초록색이에요."},
+            mango:{meaning:"망고",phonics:"맹고",example_en:"I love mango.",example_ko:"나는 망고를 정말 좋아해요."},
+            pineapple:{meaning:"파인애플",phonics:"파인애플",example_en:"The pineapple is sweet.",example_ko:"파인애플은 달콤해요."},
+            pear:{meaning:"배",phonics:"페어",example_en:"The pear is juicy.",example_ko:"배는 즙이 많아요."},
+            plum:{meaning:"자두",phonics:"플럼",example_en:"The plum is purple.",example_ko:"자두는 보라색이에요."},
+            kiwi:{meaning:"키위",phonics:"키위",example_en:"The kiwi is green inside.",example_ko:"키위는 안이 초록색이에요."},
+            fig:{meaning:"무화과",phonics:"피그",example_en:"The fig is sweet.",example_ko:"무화과는 달아요."},
+            blueberry:{meaning:"블루베리",phonics:"블루베리",example_en:"Blueberries are small and blue.",example_ko:"블루베리는 작고 파래요."},
+            coconut:{meaning:"코코넛",phonics:"코코넛",example_en:"The coconut is hard.",example_ko:"코코넛은 단단해요."},
+            papaya:{meaning:"파파야",phonics:"파파야",example_en:"The papaya is orange.",example_ko:"파파야는 주황색이에요."},
+
+            // ✏️ Classroom
+            pencil:{meaning:"연필",phonics:"펜슬",example_en:"I write with a pencil.",example_ko:"나는 연필로 써요."},
+            eraser:{meaning:"지우개",phonics:"이레이저",example_en:"I use an eraser.",example_ko:"나는 지우개를 사용해요."},
+            ruler:{meaning:"자",phonics:"룰러",example_en:"The ruler is straight.",example_ko:"자는 곧아요."},
+            book:{meaning:"책",phonics:"북",example_en:"I read a book.",example_ko:"나는 책을 읽어요."},
+            notebook:{meaning:"공책",phonics:"노트북",example_en:"I write in my notebook.",example_ko:"나는 공책에 써요."},
+            desk:{meaning:"책상",phonics:"데스크",example_en:"My desk is clean.",example_ko:"내 책상은 깨끗해요."},
+            chair:{meaning:"의자",phonics:"체어",example_en:"Sit on the chair.",example_ko:"의자에 앉으세요."},
+            board:{meaning:"칠판",phonics:"보드",example_en:"Look at the board.",example_ko:"칠판을 보세요."},
+            marker:{meaning:"마커",phonics:"마커",example_en:"The marker is red.",example_ko:"마커는 빨간색이에요."},
+            crayon:{meaning:"크레용",phonics:"크레용",example_en:"I color with a crayon.",example_ko:"나는 크레용으로 색칠해요."},
+            scissors:{meaning:"가위",phonics:"시저스",example_en:"Use the scissors carefully.",example_ko:"가위를 조심히 쓰세요."},
+            glue:{meaning:"풀",phonics:"글루",example_en:"I need some glue.",example_ko:"나는 풀이 필요해요."},
+            bag:{meaning:"가방",phonics:"백",example_en:"My bag is heavy.",example_ko:"내 가방은 무거워요."},
+            clock:{meaning:"시계",phonics:"클락",example_en:"The clock is on the wall.",example_ko:"시계가 벽에 있어요."},
+            computer:{meaning:"컴퓨터",phonics:"컴퓨터",example_en:"I use a computer.",example_ko:"나는 컴퓨터를 사용해요."},
+            paper:{meaning:"종이",phonics:"페이퍼",example_en:"I draw on paper.",example_ko:"나는 종이에 그려요."},
+            map:{meaning:"지도",phonics:"맵",example_en:"Look at the map.",example_ko:"지도를 보세요."},
+            globe:{meaning:"지구본",phonics:"글로브",example_en:"The globe is round.",example_ko:"지구본은 둥글어요."},
+            window:{meaning:"창문",phonics:"윈도우",example_en:"Open the window.",example_ko:"창문을 열어요."},
+            door:{meaning:"문",phonics:"도어",example_en:"Close the door, please.",example_ko:"문을 닫아 주세요."},
+
+            // 😄 Feelings
+            happy:{meaning:"행복한",phonics:"해피",example_en:"I am so happy.",example_ko:"나는 정말 행복해요."},
+            sad:{meaning:"슬픈",phonics:"새드",example_en:"Don't be sad.",example_ko:"슬퍼하지 마세요."},
+            angry:{meaning:"화난",phonics:"앵그리",example_en:"He is angry.",example_ko:"그는 화가 났어요."},
+            scared:{meaning:"무서운",phonics:"스케어드",example_en:"I am scared of the dark.",example_ko:"나는 어둠이 무서워요."},
+            tired:{meaning:"피곤한",phonics:"타이어드",example_en:"I am very tired.",example_ko:"나는 매우 피곤해요."},
+            excited:{meaning:"신나는",phonics:"익사이티드",example_en:"I am excited today.",example_ko:"나는 오늘 신나요."},
+            bored:{meaning:"지루한",phonics:"보어드",example_en:"I am bored.",example_ko:"나는 지루해요."},
+            sleepy:{meaning:"졸린",phonics:"슬리피",example_en:"I feel sleepy.",example_ko:"나는 졸려요."},
+            surprised:{meaning:"놀란",phonics:"서프라이즈드",example_en:"She is surprised.",example_ko:"그녀는 놀랐어요."},
+            proud:{meaning:"자랑스러운",phonics:"프라우드",example_en:"I am proud of you.",example_ko:"나는 네가 자랑스러워요."},
+            hungry:{meaning:"배고픈",phonics:"헝그리",example_en:"I am hungry.",example_ko:"나는 배고파요."},
+            thirsty:{meaning:"목마른",phonics:"써스티",example_en:"I am thirsty.",example_ko:"나는 목말라요."},
+            worried:{meaning:"걱정하는",phonics:"워리드",example_en:"Don't be worried.",example_ko:"걱정하지 마세요."},
+            shy:{meaning:"수줍은",phonics:"샤이",example_en:"He is shy.",example_ko:"그는 수줍어해요."},
+            nervous:{meaning:"긴장한",phonics:"너버스",example_en:"I am nervous.",example_ko:"나는 긴장돼요."},
+            sick:{meaning:"아픈",phonics:"식",example_en:"I am sick today.",example_ko:"나는 오늘 아파요."},
+            fine:{meaning:"괜찮은",phonics:"파인",example_en:"I am fine, thank you.",example_ko:"나는 괜찮아요, 고마워요."},
+            cool:{meaning:"멋진, 시원한",phonics:"쿨",example_en:"That is so cool!",example_ko:"그거 정말 멋져요!"},
+            warm:{meaning:"따뜻한",phonics:"웜",example_en:"The water is warm.",example_ko:"물이 따뜻해요."},
+
+            // ➕ 자주 쓰는 기본 단어
+            hello:{meaning:"안녕하세요",phonics:"헬로",example_en:"Hello, everyone!",example_ko:"안녕하세요, 여러분!"},
+            school:{meaning:"학교",phonics:"스쿨",example_en:"I go to school.",example_ko:"나는 학교에 가요."},
+            teacher:{meaning:"선생님",phonics:"티처",example_en:"She is my teacher.",example_ko:"그녀는 내 선생님이에요."},
+            student:{meaning:"학생",phonics:"스튜던트",example_en:"I am a student.",example_ko:"나는 학생이에요."},
+            friend:{meaning:"친구",phonics:"프렌드",example_en:"You are my friend.",example_ko:"너는 내 친구야."},
+            water:{meaning:"물",phonics:"워터",example_en:"I drink water.",example_ko:"나는 물을 마셔요."},
+            milk:{meaning:"우유",phonics:"밀크",example_en:"I like milk.",example_ko:"나는 우유를 좋아해요."},
+            red:{meaning:"빨강",phonics:"레드",example_en:"The apple is red.",example_ko:"사과는 빨개요."},
+            blue:{meaning:"파랑",phonics:"블루",example_en:"The sky is blue.",example_ko:"하늘은 파래요."},
+            green:{meaning:"초록",phonics:"그린",example_en:"The grass is green.",example_ko:"잔디는 초록색이에요."},
+            yellow:{meaning:"노랑",phonics:"옐로",example_en:"The sun is yellow.",example_ko:"해는 노란색이에요."},
+            one:{meaning:"하나",phonics:"원",example_en:"I have one pencil.",example_ko:"나는 연필 한 자루가 있어요."},
+            two:{meaning:"둘",phonics:"투",example_en:"I see two cats.",example_ko:"나는 고양이 두 마리를 봐요."},
+            three:{meaning:"셋",phonics:"쓰리",example_en:"I have three books.",example_ko:"나는 책 세 권이 있어요."}
+        };
+
+        // Custom sample lists for instant setup
+        const SAMPLES = {
+            animals: ["dog", "cat", "bird", "lion", "tiger", "bear", "elephant", "monkey", "rabbit", "giraffe", "fox", "deer", "wolf", "zebra", "hippo", "panda", "koala", "penguin", "dolphin", "whale"],
+            fruits: ["apple", "banana", "orange", "grape", "strawberry", "peach", "melon", "watermelon", "cherry", "lemon", "lime", "mango", "pineapple", "pear", "plum", "kiwi", "fig", "blueberry", "coconut", "papaya"],
+            classroom: ["pencil", "eraser", "ruler", "book", "notebook", "desk", "chair", "board", "marker", "crayon", "scissors", "glue", "bag", "clock", "computer", "paper", "map", "globe", "window", "door"],
+            feelings: ["happy", "sad", "angry", "scared", "tired", "excited", "bored", "sleepy", "surprised", "proud", "hungry", "thirsty", "worried", "shy", "nervous", "sick", "fine", "cool", "warm"]
+        };
+
+        // UI Element selectors
+        const btnSample = document.getElementById('btn-sample');
+        const sampleMenu = document.getElementById('sample-menu');
+        const btnGenerate = document.getElementById('btn-generate');
+        const btnClearInput = document.getElementById('btn-clear-input');
+        const wordsTextarea = document.getElementById('words-textarea');
+        const boardEmpty = document.getElementById('board-empty');
+        const boardActive = document.getElementById('board-active');
+        const wordCardsContainer = document.getElementById('word-cards-container');
+        const labelRep = document.getElementById('label-rep');
+        const settingRep = document.getElementById('setting-rep');
+        const boardSummary = document.getElementById('board-summary');
+        const btnPlayAll = document.getElementById('btn-play-all');
+        const btnShuffle = document.getElementById('btn-shuffle');
+        const boardProgress = document.getElementById('board-progress');
+        const progressText = document.getElementById('progress-text');
+
+        // Tab elements
+        const tabBtnInput = document.getElementById('tab-btn-input');
+        const tabBtnConfig = document.getElementById('tab-btn-config');
+        const tabContentInput = document.getElementById('tab-content-input');
+        const tabContentConfig = document.getElementById('tab-content-config');
+
+        // View Mode buttons
+        const btnViewList = document.getElementById('btn-view-list');
+        const btnViewCard = document.getElementById('btn-view-card');
+
+        // Storage elements
+        const storageNameInput = document.getElementById('storage-name-input');
+        const btnSaveStorage = document.getElementById('btn-save-storage');
+        const storageListContainer = document.getElementById('storage-list-container');
+
+        // CSV elements
+        const csvImportInput = document.getElementById('csv-import-input');
+        const btnCsvExport = document.getElementById('btn-csv-export');
+
+        // Tab switching logic
+        tabBtnInput.addEventListener('click', () => {
+            tabBtnInput.className = "flex-1 py-2.5 rounded-2xl text-xs font-bold transition-all bg-indigo-600 text-white shadow-sm flex items-center justify-center gap-1.5";
+            tabBtnConfig.className = "flex-1 py-2.5 rounded-2xl text-xs font-bold transition-all text-slate-500 hover:text-indigo-600 flex items-center justify-center gap-1.5";
+            tabContentInput.classList.remove('hidden');
+            tabContentConfig.classList.add('hidden');
+        });
+
+        tabBtnConfig.addEventListener('click', () => {
+            tabBtnConfig.className = "flex-1 py-2.5 rounded-2xl text-xs font-bold transition-all bg-indigo-600 text-white shadow-sm flex items-center justify-center gap-1.5";
+            tabBtnInput.className = "flex-1 py-2.5 rounded-2xl text-xs font-bold transition-all text-slate-500 hover:text-indigo-600 flex items-center justify-center gap-1.5";
+            tabContentConfig.classList.remove('hidden');
+            tabContentInput.classList.add('hidden');
+        });
+
+        // View mode layout toggle logic
+        btnViewList.addEventListener('click', () => {
+            viewMode = 'list';
+            btnViewList.className = "px-3 py-1.5 rounded-xl text-xs font-bold transition-all bg-white text-indigo-700 shadow-sm";
+            btnViewCard.className = "px-3 py-1.5 rounded-xl text-xs font-bold transition-all text-white/80 hover:text-white";
+            renderBoard();
+        });
+
+        btnViewCard.addEventListener('click', () => {
+            viewMode = 'grid';
+            btnViewCard.className = "px-3 py-1.5 rounded-xl text-xs font-bold transition-all bg-white text-indigo-700 shadow-sm";
+            btnViewList.className = "px-3 py-1.5 rounded-xl text-xs font-bold transition-all text-white/80 hover:text-white";
+            renderBoard();
+        });
+
+        // Toggle sample menu visibility
+        btnSample.addEventListener('click', (e) => {
+            e.stopPropagation();
+            sampleMenu.classList.toggle('hidden');
+        });
+
+        document.addEventListener('click', () => {
+            sampleMenu.classList.add('hidden');
+        });
+
+        // Track range slider update and immediately trigger render board to adjust bubbles
+        settingRep.addEventListener('input', (e) => {
+            labelRep.textContent = `${e.target.value}회`;
+            if (currentWords.length > 0) {
+                renderBoard(); // Re-render instantly so visual bubble count matches updated range slider
+            }
+        });
+
+        // Initialize board generation on load & click
+        btnGenerate.addEventListener('click', () => generateBoard());
+        btnClearInput.addEventListener('click', () => {
+            wordsTextarea.value = '';
+            showToast("입력창이 비워졌습니다.", "info");
+        });
+
+        // Shuffle Action
+        btnShuffle.addEventListener('click', () => {
+            if (currentWords.length < 2) return;
+            stopAllSpeech();
+            for (let i = currentWords.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [currentWords[i], currentWords[j]] = [currentWords[j], currentWords[i]];
+            }
+            currentWords.forEach((w, i) => w.id = i);
+            renderBoard();
+            showToast("단어 순서를 섞었습니다! 🔀", "success");
+        });
+
+        // Play All Action
+        btnPlayAll.addEventListener('click', () => {
+            if (currentWords.length === 0) return;
+            if (isPlayingAll) {
+                isPlayingAll = false;
+                stopAllSpeech();
+                btnPlayAll.innerHTML = `<i class="fa-solid fa-forward"></i> 자동 순차재생`;
+                showToast("순차 자동재생을 일시 중단했습니다.", "info");
+            } else {
+                isPlayingAll = true;
+                btnPlayAll.innerHTML = `<i class="fa-solid fa-pause"></i> 자동재생 정지`;
+                showToast("순차 자동재생을 시작합니다.", "success");
+                playSequential(0);
+            }
+        });
+
+        // STORAGE LOGIC (Save current textarea list to local storage)
+        btnSaveStorage.addEventListener('click', () => {
+            const name = storageNameInput.value.trim();
+            const text = wordsTextarea.value.trim();
+            if (!name) {
+                showToast("저장할 단어장의 이름을 입력해 주세요!", "warning");
+                return;
+            }
+            if (!text) {
+                showToast("저장할 단어가 입력창에 없습니다.", "warning");
+                return;
+            }
+
+            const savedBundles = JSON.parse(localStorage.getItem('edu_vocab_bundles') || '{}');
+            savedBundles[name] = text;
+            localStorage.setItem('edu_vocab_bundles', JSON.stringify(savedBundles));
+
+            storageNameInput.value = '';
+            showToast(`"${name}" 단어장이 보관함에 저장되었습니다!`, "success");
+            loadStorageList();
+        });
+
+        function loadStorageList() {
+            const savedBundles = JSON.parse(localStorage.getItem('edu_vocab_bundles') || '{}');
+            storageListContainer.innerHTML = '';
+
+            const keys = Object.keys(savedBundles);
+            if (keys.length === 0) {
+                storageListContainer.innerHTML = `<div class="text-[11px] text-slate-400 text-center py-2">보관된 단어장이 없습니다.</div>`;
+                return;
+            }
+
+            keys.forEach(key => {
+                const item = document.createElement('div');
+                item.className = "flex justify-between items-center bg-slate-50 border border-slate-100 px-3 py-1 rounded-xl text-xs hover:bg-indigo-50/50 transition";
+                item.innerHTML = `
+                    <span class="font-bold text-slate-700 truncate max-w-[150px] cursor-pointer" onclick="importFromStorage('${escapeAttr(key)}')">${escapeHtml(key)}</span>
+                    <div class="flex items-center space-x-1.5">
+                        <button onclick="importFromStorage('${escapeAttr(key)}')" class="text-indigo-600 hover:text-indigo-800" title="가져오기"><i class="fa-solid fa-file-import"></i></button>
+                        <button onclick="deleteFromStorage('${escapeAttr(key)}')" class="text-rose-500 hover:text-rose-700" title="삭제"><i class="fa-solid fa-trash text-[10px]"></i></button>
+                    </div>
+                `;
+                storageListContainer.appendChild(item);
+            });
+        }
+
+        function importFromStorage(key) {
+            const savedBundles = JSON.parse(localStorage.getItem('edu_vocab_bundles') || '{}');
+            if (savedBundles[key]) {
+                wordsTextarea.value = savedBundles[key];
+                showToast(`"${key}" 단어장을 입력창에 불러왔습니다.`, "success");
+                generateBoard();
+            }
+        }
+
+        function deleteFromStorage(key) {
+            const savedBundles = JSON.parse(localStorage.getItem('edu_vocab_bundles') || '{}');
+            delete savedBundles[key];
+            localStorage.setItem('edu_vocab_bundles', JSON.stringify(savedBundles));
+            showToast("단어장이 삭제되었습니다.", "info");
+            loadStorageList();
+        }
+
+        function loadSamplePreset(theme) {
+            const list = SAMPLES[theme];
+            wordsTextarea.value = list.join('\n');
+            const themeNames = {animals:"동물", fruits:"과일", classroom:"교실 물건", feelings:"감정"};
+            showToast(`${themeNames[theme] || theme} 테마 단어들이 입력되었습니다!`, "success");
+            generateBoard();
+        }
+
+        // ──────────────────────────────────────────────────────────────
+        // 📁 CSV IMPORT / EXPORT
+        // ──────────────────────────────────────────────────────────────
+        csvImportInput.addEventListener('change', handleCSVImport);
+        btnCsvExport.addEventListener('click', exportCSV);
+
+        // 작은 CSV 파서 (따옴표/쉼표 포함 셀 지원)
+        function parseCSV(text) {
+            const rows = [];
+            const lines = text.replace(/\r\n/g, '\n').replace(/\r/g, '\n').split('\n');
+            for (const line of lines) {
+                if (line.trim() === '') continue;
+                const fields = [];
+                let cur = '', inQ = false;
+                for (let i = 0; i < line.length; i++) {
+                    const c = line[i];
+                    if (inQ) {
+                        if (c === '"') {
+                            if (line[i + 1] === '"') { cur += '"'; i++; }
+                            else inQ = false;
+                        } else cur += c;
+                    } else {
+                        if (c === '"') inQ = true;
+                        else if (c === ',') { fields.push(cur); cur = ''; }
+                        else cur += c;
+                    }
+                }
+                fields.push(cur);
+                rows.push(fields.map(f => f.trim()));
+            }
+            return rows;
+        }
+
+        function handleCSVImport(event) {
+            const file = event.target.files[0];
+            if (!file) return;
+            const reader = new FileReader();
+            reader.onload = (e) => {
+                try {
+                    let text = e.target.result;
+                    if (text.charCodeAt(0) === 0xFEFF) text = text.slice(1); // strip BOM
+                    const rows = parseCSV(text);
+                    if (rows.length === 0) { showToast("파일이 비어있습니다.", "warning"); return; }
+
+                    // 헤더 행 자동 감지
+                    let start = 0;
+                    const firstCell = (rows[0][0] || '').toLowerCase();
+                    if (['word', '단어', 'english', '영어', 'no', '번호'].includes(firstCell)) start = 1;
+
+                    // 헤더가 'no/번호'면 단어는 두 번째 열일 수 있음 → 첫 셀이 숫자인 행은 한 칸 밀기
+                    const valid = rows.slice(start).filter(r => r.some(c => c && c.trim().length > 0));
+                    if (valid.length === 0) { showToast("가져올 단어가 없습니다.", "warning"); return; }
+
+                    // 번호 열 보정: 첫 열 전체가 숫자면 그 열을 제거
+                    const firstColAllNumbers = valid.every(r => r[0] !== '' && !isNaN(r[0]));
+                    const data = firstColAllNumbers ? valid.map(r => r.slice(1)) : valid;
+
+                    const clean = data.filter(r => r[0] && r[0].trim().length > 0).slice(0, 20);
+                    if (clean.length === 0) { showToast("가져올 단어가 없습니다.", "warning"); return; }
+
+                    wordsTextarea.value = clean.map(r => r[0]).join('\n');
+
+                    const multiCol = clean.some(r => r.length >= 2 && r[1]);
+                    if (multiCol) {
+                        // 상세 정보 포함 가져오기
+                        currentWords = clean.map((r, idx) => {
+                            const w = {
+                                id: idx,
+                                word: r[0],
+                                meaning: r[1] || '',
+                                phonics: r[2] || '',
+                                example_en: r[3] || '',
+                                example_ko: r[4] || '',
+                                completed: false
+                            };
+                            fillMissingFields(w);
+                            return w;
+                        });
+                        renderBoard();
+                        showToast(`${currentWords.length}개 단어를 파일에서 불러왔습니다 (상세 정보 포함). ⭐`, "success");
+                    } else {
+                        // 단어만 있는 경우 → 일반 생성 흐름 (사전 자동 적용)
+                        generateBoard();
+                    }
+                } catch (err) {
+                    console.error("CSV import error:", err);
+                    showToast("CSV 파일을 읽는 중 오류가 발생했습니다.", "error");
+                } finally {
+                    event.target.value = ''; // 같은 파일 다시 선택 가능하도록 초기화
+                }
+            };
+            reader.readAsText(file, 'UTF-8');
+        }
+
+        function csvField(v) {
+            v = String(v == null ? '' : v);
+            if (/[",\n]/.test(v)) return '"' + v.replace(/"/g, '""') + '"';
+            return v;
+        }
+
+        function exportCSV() {
+            if (currentWords.length === 0) {
+                showToast("내보낼 단어가 없습니다. 먼저 발음 보드를 생성하세요.", "warning");
+                return;
+            }
+            const header = ['번호', 'word', 'meaning', 'phonics', 'example_en', 'example_ko'];
+            const lines = [header.map(csvField).join(',')];
+            currentWords.forEach((w, i) => {
+                lines.push([i + 1, w.word, w.meaning, w.phonics, w.example_en, w.example_ko].map(csvField).join(','));
+            });
+            // UTF-8 BOM 추가 → 엑셀에서 한글이 깨지지 않음
+            const csv = '﻿' + lines.join('\r\n');
+            const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `영어단어장_${currentWords.length}개.csv`;
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+            showToast("CSV 파일로 내보냈습니다! (엑셀에서 바로 열려요) 📤", "success");
+        }
+
+        // 사전/기본값으로 비어있는 필드만 채우기
+        function fillMissingFields(w) {
+            const d = OFFLINE_DICT[w.word.toLowerCase().trim()];
+            if (d) {
+                if (!w.meaning) w.meaning = d.meaning;
+                if (!w.phonics) w.phonics = d.phonics;
+                if (!w.example_en) w.example_en = d.example_en;
+                if (!w.example_ko) w.example_ko = d.example_ko;
+            }
+            if (!w.meaning) w.meaning = "초등 영어 단어";
+            if (!w.phonics) w.phonics = w.word;
+            if (!w.example_en) w.example_en = `Look at the ${w.word}!`;
+            if (!w.example_ko) w.example_ko = `${w.word}을(를) 보세요!`;
+        }
+
+        // Toggle Speak Engine (Local vs Gemini)
+        function toggleEngine(engine) {
+            selectedEngine = engine;
+            const btnGemini = document.getElementById('engine-gemini');
+            const btnLocal = document.getElementById('engine-local');
+            const statusBadge = document.getElementById('engine-status');
+
+            if (engine === 'gemini') {
+                btnGemini.classList.add('bg-white', 'text-indigo-600', 'shadow-sm', 'border', 'border-slate-200/50');
+                btnGemini.classList.remove('text-slate-500');
+                btnLocal.classList.remove('bg-white', 'text-indigo-600', 'shadow-sm', 'border', 'border-slate-200/50');
+                btnLocal.classList.add('text-slate-500');
+                statusBadge.textContent = "Gemini Premium TTS Active";
+                statusBadge.className = "text-xs font-semibold text-indigo-700 uppercase tracking-wider";
+                statusBadge.previousElementSibling.className = "w-2.5 h-2.5 rounded-full bg-indigo-500 animate-pulse";
+                showToast("Gemini AI Premium 엔진으로 변경되었습니다. (API 키 필요)", "success");
+            } else {
+                btnLocal.classList.add('bg-white', 'text-indigo-600', 'shadow-sm', 'border', 'border-slate-200/50');
+                btnLocal.classList.remove('text-slate-500');
+                btnGemini.classList.remove('bg-white', 'text-indigo-600', 'shadow-sm', 'border', 'border-slate-200/50');
+                btnGemini.classList.add('text-slate-500');
+                statusBadge.textContent = "Browser TTS Active";
+                statusBadge.className = "text-xs font-semibold text-emerald-700 uppercase tracking-wider";
+                statusBadge.previousElementSibling.className = "w-2.5 h-2.5 rounded-full bg-emerald-500 animate-pulse";
+                showToast("다중 악센트가 지원되는 브라우저 로컬 엔진으로 변경되었습니다.", "success");
+            }
+        }
+
+        async function generateBoard() {
+            const text = wordsTextarea.value.trim();
+            if (!text) {
+                showToast("먼저 단어를 입력해 주세요!", "warning");
+                return;
+            }
+
+            // 진행 중인 재생 정리
+            isPlayingAll = false;
+            stopAllSpeech();
+            btnPlayAll.innerHTML = `<i class="fa-solid fa-forward"></i> 자동 순차재생`;
+
+            // Extract words (filtering empty/numerical rows)
+            const parsed = text.split(/[\n,]/)
+                .map(w => w.trim())
+                .filter(w => w.length > 0 && isNaN(w));
+
+            if (parsed.length === 0) {
+                showToast("유효한 단어가 없습니다. 영문자를 올바르게 채워주세요.", "error");
+                return;
+            }
+
+            // Cap to 20 or user target
+            const finalWords = parsed.slice(0, 20);
+
+            // Build temporary array models
+            currentWords = finalWords.map((word, idx) => ({
+                id: idx,
+                word: word,
+                meaning: "불러오는 중...",
+                phonics: "불러오는 중...",
+                example_en: "...",
+                example_ko: "...",
+                completed: false
+            }));
+
+            // 1) 내장 오프라인 사전 즉시 적용 — 인터넷 없이도 동작
+            const missing = [];
+            currentWords.forEach(w => {
+                const d = OFFLINE_DICT[w.word.toLowerCase().trim()];
+                if (d) {
+                    w.meaning = d.meaning;
+                    w.phonics = d.phonics;
+                    w.example_en = d.example_en;
+                    w.example_ko = d.example_ko;
+                } else {
+                    missing.push(w);
+                }
+            });
+
+            // Render view instantly
+            renderBoard();
+            showToast(`${currentWords.length}개의 영어 단어가 준비되었습니다.`, "success");
+
+            // 2) 사전에 없는 단어만 보완
+            if (missing.length > 0) {
+                if (document.getElementById('setting-translate').checked) {
+                    await fetchAITranslations(missing);
+                } else {
+                    missing.forEach(w => fillMissingFields(w));
+                    renderBoard();
+                }
+            }
+        }
+
+        async function fetchAITranslations(missingWords) {
+            // API 키 확인 (프레임에서 주입되거나 window.GEMINI_API_KEY 로 설정 가능)
+            const apiKey = (window.GEMINI_API_KEY || "").trim();
+
+            if (!apiKey) {
+                // 키가 없으면 기본값으로 채우고 안내 (오프라인 사전은 이미 적용됨)
+                missingWords.forEach(w => fillMissingFields(w));
+                renderBoard();
+                showToast(`사전에 없는 단어 ${missingWords.length}개는 기본값으로 표시됩니다. (온라인 AI 키 없음)`, "info");
+                return;
+            }
+
+            showToast("AI가 사전에 없는 단어의 뜻과 예문을 생성하고 있습니다...", "info");
+
+            const list = missingWords.map(w => w.word);
+            const userPrompt = `Translate and analyze these English words for elementary school students: ${list.join(', ')}. Provide Korean meaning, easy Korean phonics representation, and a simple kid-friendly example sentence with Korean translation for each word.`;
+            const systemPrompt = `You are an expert elementary English teacher. Respond ONLY with a valid JSON array of objects. Do not include any markdown formatting like \`\`\`json. Each object must represent a word in the order provided and have these exact keys:
+            "word": "The original English word"
+            "meaning": "Clear, simple Korean definition"
+            "phonics": "Easy-to-read Korean pronunciation guide (e.g. '애플' for apple)"
+            "example_en": "A very simple English example sentence suited for grade school (e.g., 'I eat a sweet apple.')"
+            "example_ko": "Natural Korean translation of the example sentence"`;
+
+            try {
+                const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-09-2025:generateContent?key=${apiKey}`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        contents: [{ parts: [{ text: userPrompt }] }],
+                        generationConfig: {
+                            responseMimeType: "application/json",
+                            responseSchema: {
+                                type: "ARRAY",
+                                items: {
+                                    type: "OBJECT",
+                                    properties: {
+                                        "word": { "type": "STRING" },
+                                        "meaning": { "type": "STRING" },
+                                        "phonics": { "type": "STRING" },
+                                        "example_en": { "type": "STRING" },
+                                        "example_ko": { "type": "STRING" }
+                                    },
+                                    "required": ["word", "meaning", "phonics", "example_en", "example_ko"]
+                                }
+                            }
+                        },
+                        systemInstruction: {
+                            parts: [{ text: systemPrompt }]
+                        }
+                    })
+                });
+
+                if (!response.ok) throw new Error("API Failure");
+
+                const result = await response.json();
+                const jsonText = result.candidates?.[0]?.content?.parts?.[0]?.text;
+                const parsedResults = JSON.parse(jsonText);
+
+                // 단어명 기준으로 매핑 (인덱스보다 안전)
+                const byWord = {};
+                parsedResults.forEach(item => {
+                    if (item && item.word) byWord[item.word.toLowerCase().trim()] = item;
+                });
+
+                missingWords.forEach(w => {
+                    const item = byWord[w.word.toLowerCase().trim()];
+                    if (item) {
+                        w.meaning = item.meaning || w.meaning;
+                        w.phonics = item.phonics || w.phonics;
+                        w.example_en = item.example_en || w.example_en;
+                        w.example_ko = item.example_ko || w.example_ko;
+                    }
+                    fillMissingFields(w); // 혹시 빈 값이 있으면 보정
+                });
+
+                renderBoard();
+                showToast("AI가 사전에 없던 단어의 뜻과 예문을 완성했습니다! ⭐️", "success");
+            } catch (err) {
+                console.error("Gemini batch mapping error:", err);
+                missingWords.forEach(w => fillMissingFields(w));
+                renderBoard();
+                showToast("AI 보완 실패. 사전에 없는 단어는 기본값으로 표시합니다.", "warning");
+            }
+        }
+
+        function renderEmptyState() {
+            boardEmpty.classList.remove('hidden');
+            boardActive.classList.add('hidden');
+            btnPlayAll.disabled = true;
+            btnShuffle.disabled = true;
+            boardSummary.textContent = "등록된 단어가 없습니다. 왼쪽 창에 채워주세요!";
+        }
+
+        function renderBoard() {
+            if (currentWords.length === 0) {
+                renderEmptyState();
+                return;
+            }
+
+            boardEmpty.classList.add('hidden');
+            boardActive.classList.remove('hidden');
+            btnPlayAll.disabled = false;
+            btnShuffle.disabled = false;
+
+            const activeCount = currentWords.length;
+            boardSummary.textContent = `오늘 공부할 단어: 총 ${activeCount}개`;
+
+            // Adjust grid layout depending on selected viewMode
+            if (viewMode === 'list') {
+                wordCardsContainer.className = "grid grid-cols-1 xl:grid-cols-2 gap-2";
+            } else {
+                wordCardsContainer.className = "grid grid-cols-1 md:grid-cols-2 gap-4";
+            }
+
+            wordCardsContainer.innerHTML = '';
+
+            currentWords.forEach((wordObj, i) => {
+                const card = document.createElement('div');
+                card.id = `card-${i}`;
+
+                const reps = parseInt(settingRep.value);
+                const isThisPlaying = (currentPlayingWordIdx === i);
+
+                // VIEW MODE 1: COMPACT LIST STYLE (Saves huge screen real estate)
+                if (viewMode === 'list') {
+                    card.className = `p-3 rounded-2xl bg-white border transition-all flex items-center justify-between ${
+                        wordObj.completed ? 'border-indigo-400 bg-indigo-50/10 shadow-sm' : 'border-slate-100 shadow-sm hover:shadow-md'
+                    }`;
+
+                    let repsHtml = '';
+                    for (let r = 1; r <= reps; r++) {
+                        repsHtml += `<span id="pill-${i}-${r}" class="w-3.5 h-3.5 rounded-full bg-slate-100 text-[8px] text-slate-400 font-extrabold flex items-center justify-center transition-all duration-300">#${r}</span>`;
+                    }
+
+                    const playIconClass = isThisPlaying ? "fa-solid fa-pause text-xs pulse-active" : "fa-solid fa-play text-xs";
+                    const progressStatus = isThisPlaying ? `재생 중... (${currentPlayingRep}/${reps})` : (wordObj.completed ? "완료! ✨" : "대기");
+
+                    card.innerHTML = `
+                        <div class="flex items-center space-x-3 flex-1 min-w-0">
+                            <div class="flex items-center space-x-1.5 flex-shrink-0">
+                                <span class="text-[10px] font-black text-slate-400 bg-slate-100 px-1.5 py-0.5 rounded-lg">${String(i+1).padStart(2, '0')}</span>
+                                <button onclick="toggleWordCompleted(${i})" class="text-sm transition ${wordObj.completed ? 'text-amber-400' : 'text-slate-300 hover:text-amber-300'}">
+                                    <i class="fa-${wordObj.completed ? 'solid' : 'regular'} fa-star"></i>
+                                </button>
+                            </div>
+
+                            <div class="min-w-0 flex-1 leading-tight">
+                                <div class="flex items-baseline space-x-1.5 flex-wrap">
+                                    <!-- 영어 단어의 축소 잘림을 막기 위해 flex-shrink-0 속성 지정 -->
+                                    <span class="text-base font-black text-indigo-900 flex-shrink-0">${escapeHtml(wordObj.word)}</span>
+                                    <span class="text-[9px] font-bold text-purple-700 bg-purple-50 px-1.5 py-0.2 rounded flex-shrink-0">${escapeHtml(wordObj.phonics)}</span>
+                                </div>
+                                <span class="text-[11px] font-semibold text-slate-500 block truncate">${escapeHtml(wordObj.meaning)}</span>
+                            </div>
+                        </div>
+
+                        <!-- Progress indicator (Micro pills) — 모바일에서도 표시 -->
+                        <div class="flex flex-col items-end px-2 sm:px-3 flex-shrink-0">
+                            <span class="text-[8px] font-black text-slate-400 tracking-wider mb-1" id="progress-indicator-${i}">${progressStatus}</span>
+                            <div class="flex flex-wrap gap-1 max-w-[80px] sm:max-w-[130px] justify-end" id="rep-container-${i}">
+                                ${repsHtml}
+                            </div>
+                        </div>
+
+                        <!-- Action controls -->
+                        <div class="flex items-center space-x-1 flex-shrink-0 ml-1">
+                            <button id="btn-mic-${i}" onclick="startSpeakingRecognition(${i})" class="w-8 h-8 rounded-full bg-emerald-50 hover:bg-emerald-100 text-emerald-600 border border-emerald-100 flex items-center justify-center transition active:scale-95" title="말하기 테스트">
+                                <i class="fa-solid fa-microphone text-xs" id="mic-icon-${i}"></i>
+                            </button>
+                            <button id="btn-play-${i}" onclick="playWordRepetitive(${i})" class="w-8 h-8 rounded-full bg-gradient-to-tr from-indigo-500 to-purple-500 hover:from-indigo-600 hover:to-purple-600 text-white flex items-center justify-center transition active:scale-95">
+                                <i class="${playIconClass}" id="play-icon-${i}"></i>
+                            </button>
+                            <button onclick="openDetailModal(${i})" class="w-8 h-8 rounded-full bg-slate-50 hover:bg-slate-100 text-slate-500 border border-slate-100 flex items-center justify-center transition" title="상세 정보">
+                                <i class="fa-solid fa-circle-info text-xs"></i>
+                            </button>
+                        </div>
+                    `;
+
+                // VIEW MODE 2: CLASSIC CARD STYLE
+                } else {
+                    card.className = `p-5 rounded-3xl bg-white border-2 transition-all relative overflow-hidden flex flex-col justify-between ${
+                        wordObj.completed ? 'border-indigo-400 bg-indigo-50/10 shadow-sm' : 'border-slate-100 shadow-md shadow-slate-100 hover:shadow-xl'
+                    }`;
+
+                    let repsHtml = '';
+                    for (let r = 1; r <= reps; r++) {
+                        repsHtml += `<span id="pill-${i}-${r}" class="w-6 h-6 rounded-full bg-slate-100 text-[10px] text-slate-400 font-extrabold flex items-center justify-center transition-all duration-300">#${r}</span>`;
+                    }
+
+                    const playIconClass = isThisPlaying ? "fa-solid fa-pause text-lg pulse-active" : "fa-solid fa-play text-lg";
+                    const progressStatus = isThisPlaying ? `재생 중... (${currentPlayingRep}/${reps})` : (wordObj.completed ? "학습 완료! ✨" : "대기 중");
+
+                    card.innerHTML = `
+                        <div class="flex justify-between items-start">
+                            <div class="flex items-center space-x-2">
+                                <span class="text-xs font-black text-slate-400 bg-slate-100 px-2 py-0.5 rounded-lg">${String(i+1).padStart(2, '0')}</span>
+                                <span class="text-xs font-semibold px-2 py-0.5 rounded-lg text-purple-700 bg-purple-50 flex-shrink-0">${escapeHtml(wordObj.phonics)}</span>
+                            </div>
+                            <button onclick="toggleWordCompleted(${i})" class="text-lg transition ${wordObj.completed ? 'text-amber-400' : 'text-slate-300 hover:text-amber-300'}">
+                                <i class="fa-${wordObj.completed ? 'solid' : 'regular'} fa-star"></i>
+                            </button>
+                        </div>
+
+                        <div class="my-3 flex items-center justify-between">
+                            <div>
+                                <h3 class="text-2xl font-black text-indigo-900 tracking-tight flex-shrink-0">${escapeHtml(wordObj.word)}</h3>
+                                <p class="text-sm font-bold text-slate-500 mt-0.5">${escapeHtml(wordObj.meaning)}</p>
+                            </div>
+                            <div class="flex items-center space-x-2">
+                                <button id="btn-mic-${i}" onclick="startSpeakingRecognition(${i})" class="w-10 h-10 rounded-full bg-emerald-50 hover:bg-emerald-100 text-emerald-600 border border-emerald-200 flex items-center justify-center transition active:scale-95">
+                                    <i class="fa-solid fa-microphone text-sm" id="mic-icon-${i}"></i>
+                                </button>
+                                <button id="btn-play-${i}" onclick="playWordRepetitive(${i})" class="w-12 h-12 rounded-full bg-gradient-to-tr from-indigo-500 to-purple-500 hover:from-indigo-600 hover:to-purple-600 text-white shadow-md shadow-indigo-100 flex items-center justify-center transition hover:scale-105 active:scale-95">
+                                    <i class="${playIconClass}" id="play-icon-${i}"></i>
+                                </button>
+                            </div>
+                        </div>
+
+                        <div class="mt-2 space-y-2">
+                            <div class="flex justify-between items-center">
+                                <span class="text-[10px] font-extrabold text-slate-400 uppercase tracking-widest">반복 진도율</span>
+                                <span class="text-[10px] font-extrabold text-indigo-500" id="progress-indicator-${i}">${progressStatus}</span>
+                            </div>
+                            <div class="flex flex-wrap gap-1.5" id="rep-container-${i}">
+                                ${repsHtml}
+                            </div>
+                        </div>
+
+                        <div class="border-t border-slate-50 mt-4 pt-3 flex justify-between items-center">
+                            <button onclick="openDetailModal(${i})" class="text-xs font-bold text-indigo-600 hover:text-indigo-800 flex items-center gap-1">
+                                <i class="fa-solid fa-circle-info"></i> 파닉스 & 예문 보기
+                            </button>
+                        </div>
+                    `;
+                }
+
+                wordCardsContainer.appendChild(card);
+            });
+
+            // Auto highlight in-progress repetition items immediately after re-render
+            if (currentPlayingWordIdx !== null) {
+                highlightActivePill(currentPlayingWordIdx, currentPlayingRep);
+            }
+
+            updateProgressMetric();
+        }
+
+        // Track completed progress
+        function toggleWordCompleted(idx) {
+            currentWords[idx].completed = !currentWords[idx].completed;
+            renderBoard();
+            showToast(`"${currentWords[idx].word}" 단어 학습을 정복 완료 처리했습니다.`, "info");
+        }
+
+        function updateProgressMetric() {
+            const completedCount = currentWords.filter(w => w.completed).length;
+            const total = currentWords.length;
+            const pct = total > 0 ? (completedCount / total) * 100 : 0;
+
+            boardProgress.style.width = `${pct}%`;
+            progressText.textContent = `${completedCount} / ${total}개 정복`;
+        }
+
+        async function playWordRepetitive(wordIdx) {
+            const wordObj = currentWords[wordIdx];
+            if (!wordObj) return;
+
+            // 이미 재생 중인 단어 카드를 다시 누르면 정지합니다.
+            if (currentPlayingWordIdx === wordIdx) {
+                // 개별 정지 시 순차재생도 중단
+                isPlayingAll = false;
+                btnPlayAll.innerHTML = `<i class="fa-solid fa-forward"></i> 자동 순차재생`;
+                stopAllSpeech();
+                return;
+            }
+
+            // 이전 오디오나 낭독 중지
+            stopAllSpeech();
+            currentPlayingWordIdx = wordIdx;
+            currentPlayingRep = 0;
+
+            const playIcon = document.getElementById(`play-icon-${wordIdx}`);
+            const progressIndicator = document.getElementById(`progress-indicator-${wordIdx}`);
+
+            if (playIcon) playIcon.className = (viewMode === 'list') ? "fa-solid fa-pause text-xs pulse-active" : "fa-solid fa-pause text-lg pulse-active";
+            if (progressIndicator) progressIndicator.textContent = "안내 방송 중...";
+
+            // 1. 한국어 음성으로 "문제 일번", "문제 이번" 등 직관적으로 안내 방송 제공
+            const synth = window.speechSynthesis;
+            if (synth) {
+                synth.cancel();
+
+                // 한국어 서수 오인식 해결을 위한 한자어 숫자 배열 매핑 (최대 20번 단어 대응)
+                const sinoKorean = [
+                    "", "일", "이", "삼", "사", "오", "육", "칠", "팔", "구", "십",
+                    "십일", "십이", "십삼", "십사", "십오", "십육", "십칠", "십팔", "십구", "이십"
+                ];
+                const problemNumText = sinoKorean[wordIdx + 1] || (wordIdx + 1);
+
+                // "문제 일번", "문제 이번" 형태로 음성 텍스트 구성
+                const introUtterance = new SpeechSynthesisUtterance(`문제 ${problemNumText}번.`);
+                introUtterance.lang = 'ko-KR';
+                introUtterance.rate = 1.0;
+
+                introUtterance.onend = () => {
+                    if (currentPlayingWordIdx !== wordIdx) return;
+                    startEnglishRepetition(wordIdx);
+                };
+
+                introUtterance.onerror = () => {
+                    if (currentPlayingWordIdx !== wordIdx) return;
+                    startEnglishRepetition(wordIdx);
+                };
+
+                synth.speak(introUtterance);
+            } else {
+                startEnglishRepetition(wordIdx);
+            }
+        }
+
+        async function playSequential(nextIdx) {
+            if (!isPlayingAll) return; // 중간에 정지된 경우 방어
+            if (nextIdx >= currentWords.length) {
+                isPlayingAll = false;
+                btnPlayAll.innerHTML = `<i class="fa-solid fa-forward"></i> 자동 순차재생`;
+                showToast("모든 영어 단어 반복 재생이 마무리되었습니다! 🎉", "success");
+                return;
+            }
+            playWordRepetitive(nextIdx);
+        }
+
+        async function startEnglishRepetition(wordIdx) {
+            const wordObj = currentWords[wordIdx];
+            if (!wordObj) return;
+
+            const progressIndicator = document.getElementById(`progress-indicator-${wordIdx}`);
+            if (progressIndicator) progressIndicator.textContent = "발음 재생 중...";
+
+            const totalReps = parseInt(settingRep.value);
+            let currentRep = 1;
+
+            if (selectedEngine === 'gemini' && (window.GEMINI_API_KEY || "").trim()) {
+                const voices = ["Zephyr", "Puck", "Fenrir", "Leda", "Kore"];
+
+                async function nextGeminiSpeaker() {
+                    if (currentRep > totalReps || currentPlayingWordIdx !== wordIdx) {
+                        finalizeActiveCard(wordIdx, currentRep > totalReps);
+                        return;
+                    }
+
+                    currentPlayingRep = currentRep;
+                    highlightActivePill(wordIdx, currentRep);
+                    if (progressIndicator) progressIndicator.textContent = `재생 중... (${currentRep}/${totalReps})`;
+
+                    const voice = voices[(currentRep - 1) % voices.length];
+                    const speakText = wordObj.word;
+
+                    try {
+                        const audioUrl = await generateGeminiTTS(speakText, voice);
+                        if (currentPlayingWordIdx !== wordIdx) return;
+
+                        activeAudioElement = new Audio(audioUrl);
+                        activeAudioElement.play();
+                        activeAudioElement.onended = () => {
+                            if (currentPlayingWordIdx !== wordIdx) return;
+                            currentRep++;
+                            activeWebSpeechTimer = setTimeout(nextGeminiSpeaker, 1400);
+                        };
+                    } catch (err) {
+                        console.error("Gemini premium tts error:", err);
+                        showToast("Gemini TTS 실패. 로컬 엔진으로 전환합니다.", "warning");
+                        toggleEngine('local');
+                        // 현재 단어를 로컬 엔진으로 다시 재생
+                        startEnglishRepetition(wordIdx);
+                    }
+                }
+
+                nextGeminiSpeaker();
+            } else {
+                // LOCAL WEB SPEECH ENGINE (영어 다국적 액센트 자동 순환)
+                const synth = window.speechSynthesis;
+                if (!synth) {
+                    showToast("이 브라우저는 음성 합성을 지원하지 않습니다.", "error");
+                    finalizeActiveCard(wordIdx, false);
+                    return;
+                }
+
+                const rawVoices = synth.getVoices().filter(v => v.lang.startsWith('en-'));
+                const selectedVoices = rawVoices.length > 0 ? rawVoices : synth.getVoices();
+
+                function speakNextLocal() {
+                    if (currentRep > totalReps || currentPlayingWordIdx !== wordIdx) {
+                        finalizeActiveCard(wordIdx, currentRep > totalReps);
+                        return;
+                    }
+
+                    currentPlayingRep = currentRep;
+                    highlightActivePill(wordIdx, currentRep);
+                    if (progressIndicator) progressIndicator.textContent = `재생 중... (${currentRep}/${totalReps})`;
+
+                    const voice = selectedVoices.length > 0 ? selectedVoices[(currentRep - 1) % selectedVoices.length] : null;
+                    const wordUtterance = new SpeechSynthesisUtterance(wordObj.word);
+
+                    if (voice) {
+                        wordUtterance.voice = voice;
+                        wordUtterance.lang = voice.lang;
+                    } else {
+                        wordUtterance.lang = 'en-US';
+                    }
+                    wordUtterance.rate = 0.85; // 아이들을 위한 조금 느린 속도
+
+                    wordUtterance.onend = () => {
+                        if (currentPlayingWordIdx !== wordIdx) return;
+                        currentRep++;
+                        activeWebSpeechTimer = setTimeout(speakNextLocal, 1300);
+                    };
+                    wordUtterance.onerror = () => {
+                        if (currentPlayingWordIdx !== wordIdx) return;
+                        currentRep++;
+                        activeWebSpeechTimer = setTimeout(speakNextLocal, 600);
+                    };
+                    synth.speak(wordUtterance);
+                }
+
+                speakNextLocal();
+            }
+        }
+
+        // Highlight visual pills dynamically (Supports responsive sizes)
+        function highlightActivePill(wordIdx, pillNum) {
+            const reps = parseInt(settingRep.value);
+            const isList = (viewMode === 'list');
+            for (let r = 1; r <= reps; r++) {
+                const p = document.getElementById(`pill-${wordIdx}-${r}`);
+                if (p) {
+                    if (r < pillNum) {
+                        p.className = isList
+                            ? "w-3.5 h-3.5 rounded-full bg-indigo-500 text-[8px] text-white font-black flex items-center justify-center scale-100 opacity-75"
+                            : "w-6 h-6 rounded-full bg-indigo-500 text-[10px] text-white font-extrabold flex items-center justify-center scale-100 opacity-75";
+                    } else if (r === pillNum) {
+                        p.className = isList
+                            ? "w-4 h-4 rounded-full bg-gradient-to-tr from-amber-400 to-yellow-500 text-[8px] text-white font-black flex items-center justify-center scale-110 shadow-md ring-1 ring-amber-300 animate-pulse"
+                            : "w-7 h-7 rounded-full bg-gradient-to-tr from-amber-400 to-yellow-500 text-[10px] text-white font-extrabold flex items-center justify-center scale-110 shadow-md ring-2 ring-amber-300 animate-bounce";
+                    } else {
+                        p.className = isList
+                            ? "w-3.5 h-3.5 rounded-full bg-slate-100 text-[8px] text-slate-400 font-extrabold flex items-center justify-center"
+                            : "w-6 h-6 rounded-full bg-slate-100 text-[10px] text-slate-400 font-extrabold flex items-center justify-center";
+                    }
+                }
+            }
+        }
+
+        function stopAllSpeech() {
+            if (activeAudioElement) {
+                activeAudioElement.onended = null;
+                activeAudioElement.pause();
+                activeAudioElement = null;
+            }
+
+            if (window.speechSynthesis) {
+                window.speechSynthesis.cancel();
+            }
+
+            if (activeWebSpeechTimer) {
+                clearTimeout(activeWebSpeechTimer);
+                activeWebSpeechTimer = null;
+            }
+
+            if (currentPlayingWordIdx !== null) {
+                const prevIdx = currentPlayingWordIdx;
+                currentPlayingWordIdx = null;
+                currentPlayingRep = 0;
+                finalizeActiveCard(prevIdx, false);
+            }
+        }
+
+        // Web Audio Synthesizer to play high quality school chime (No external MP3 required)
+        function playChimeEffect() {
+            try {
+                if (!audioCtx) {
+                    audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+                }
+                const now = audioCtx.currentTime;
+
+                // Note 1 (Mi)
+                const osc1 = audioCtx.createOscillator();
+                const gain1 = audioCtx.createGain();
+                osc1.type = 'triangle';
+                osc1.frequency.setValueAtTime(659.25, now); // E5
+                gain1.gain.setValueAtTime(0.15, now);
+                gain1.gain.exponentialRampToValueAtTime(0.001, now + 0.4);
+                osc1.connect(gain1);
+                gain1.connect(audioCtx.destination);
+                osc1.start(now);
+                osc1.stop(now + 0.4);
+
+                // Note 2 (Sol)
+                const osc2 = audioCtx.createOscillator();
+                const gain2 = audioCtx.createGain();
+                osc2.type = 'triangle';
+                osc2.frequency.setValueAtTime(783.99, now + 0.15); // G5
+                gain2.gain.setValueAtTime(0.15, now + 0.15);
+                gain2.gain.exponentialRampToValueAtTime(0.001, now + 0.6);
+                osc2.connect(gain2);
+                gain2.connect(audioCtx.destination);
+                osc2.start(now + 0.15);
+                osc2.stop(now + 0.6);
+
+                // Note 3 (High Do)
+                const osc3 = audioCtx.createOscillator();
+                const gain3 = audioCtx.createGain();
+                osc3.type = 'triangle';
+                osc3.frequency.setValueAtTime(1046.50, now + 0.3); // C6
+                gain3.gain.setValueAtTime(0.2, now + 0.3);
+                gain3.gain.exponentialRampToValueAtTime(0.001, now + 0.85);
+                osc3.connect(gain3);
+                gain3.connect(audioCtx.destination);
+                osc3.start(now + 0.3);
+                osc3.stop(now + 0.85);
+            } catch (e) {
+                console.warn("Audio Context init blocked by browser user gesture policy.");
+            }
+        }
+
+        function finalizeActiveCard(idx, completedSuccess = false) {
+            const playIcon = document.getElementById(`play-icon-${idx}`);
+            const progressIndicator = document.getElementById(`progress-indicator-${idx}`);
+
+            if (playIcon) playIcon.className = (viewMode === 'list') ? "fa-solid fa-play text-xs" : "fa-solid fa-play text-lg";
+            if (progressIndicator) {
+                progressIndicator.textContent = completedSuccess ? "학습 완료! ✨" : "재생 중지";
+            }
+
+            if (completedSuccess) {
+                currentWords[idx].completed = true;
+                const card = document.getElementById(`card-${idx}`);
+                if (card) {
+                    if (viewMode === 'list') {
+                        card.className = "p-3 rounded-2xl bg-white border border-indigo-400 bg-indigo-50/10 transition-all flex items-center justify-between shadow-sm";
+                    } else {
+                        card.className = "p-5 rounded-3xl bg-white border-2 border-indigo-400 bg-indigo-50/10 transition-all relative overflow-hidden flex flex-col justify-between shadow-sm";
+                    }
+                }
+                updateProgressMetric();
+                playChimeEffect(); // Sound reward on finishing word reps
+
+                if (isPlayingAll) {
+                    setTimeout(() => {
+                        playSequential(idx + 1);
+                    }, 1200);
+                }
+            }
+        }
+
+        // 🎤 AI MICROPHONE SPEAKING RECOGNITION SYSTEM
+        function startSpeakingRecognition(wordIdx) {
+            const wordObj = currentWords[wordIdx];
+            if (!wordObj) return;
+
+            const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+            if (!SpeechRecognition) {
+                showToast("이 브라우저는 음성 인식(마이크)을 지원하지 않습니다. Chrome을 추천합니다.", "error");
+                return;
+            }
+
+            stopAllSpeech();
+
+            const micIcon = document.getElementById(`mic-icon-${wordIdx}`);
+            const btnMic = document.getElementById(`btn-mic-${wordIdx}`);
+            const progressIndicator = document.getElementById(`progress-indicator-${wordIdx}`);
+
+            const recognition = new SpeechRecognition();
+            recognition.lang = 'en-US';
+            recognition.interimResults = false;
+            recognition.maxAlternatives = 1;
+
+            const isList = (viewMode === 'list');
+            const micSize = isList ? "w-8 h-8" : "w-10 h-10";
+            const micTextSize = isList ? "text-xs" : "text-sm";
+
+            if (micIcon) micIcon.className = `fa-solid fa-microphone ${micTextSize} text-red-500 animate-pulse`;
+            if (btnMic) btnMic.className = `${micSize} rounded-full bg-red-50 text-red-500 border-2 border-red-300 flex items-center justify-center transition active:scale-95`;
+            if (progressIndicator) progressIndicator.textContent = "듣고 있어요! 말해 보세요! 🎙️";
+
+            showToast(`"${wordObj.word}" 발음을 크게 말해 보세요!`, "info");
+
+            recognition.start();
+
+            recognition.onresult = (event) => {
+                const spokenText = event.results[0][0].transcript.toLowerCase().replace(/[\.\,\?\!]/g, "").trim();
+                const targetText = wordObj.word.toLowerCase().trim();
+
+                console.log(`AI Recognized: ${spokenText} vs Target: ${targetText}`);
+
+                if (spokenText === targetText || targetText.includes(spokenText) || spokenText.includes(targetText)) {
+                    showToast(`✨ 퍼펙트! 발음 일치: "${spokenText}"`, "success");
+                    playChimeEffect();
+                    currentWords[wordIdx].completed = true;
+                    renderBoard();
+                } else {
+                    showToast(`아쉽네요! 인식된 발음: "${spokenText}"`, "warning");
+                    if (progressIndicator) progressIndicator.textContent = "다시 시도해 보세요!";
+                    resetMicIcon();
+                }
+            };
+
+            recognition.onerror = (event) => {
+                console.error("Mic speech recognition error:", event.error);
+                showToast("음성을 인식하지 못했습니다. 조용한 곳에서 다시 해보세요.", "warning");
+                resetMicIcon();
+            };
+
+            recognition.onend = () => {
+                resetMicIcon();
+            };
+
+            function resetMicIcon() {
+                if (micIcon) micIcon.className = `fa-solid fa-microphone ${micTextSize}`;
+                if (btnMic) btnMic.className = `${micSize} rounded-full bg-emerald-50 hover:bg-emerald-100 text-emerald-600 border border-emerald-100 flex items-center justify-center transition active:scale-95`;
+            }
+        }
+
+        async function generateGeminiTTS(text, voiceName = "Zephyr") {
+            const apiKey = (window.GEMINI_API_KEY || "").trim();
+            const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-tts:generateContent?key=${apiKey}`;
+
+            const payload = {
+                contents: [{
+                    parts: [{ text: text }]
+                }],
+                generationConfig: {
+                    responseModalities: ["AUDIO"],
+                    speechConfig: {
+                        voiceConfig: {
+                            prebuiltVoiceConfig: { voiceName: voiceName }
+                        }
+                    }
+                },
+                model: "gemini-2.5-flash-preview-tts"
+            };
+
+            const response = await fetch(apiUrl, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(payload)
+            });
+
+            if (!response.ok) {
+                throw new Error(`TTS API Call failed: ${response.statusText}`);
+            }
+
+            const result = await response.json();
+            const part = result?.candidates?.[0]?.content?.parts?.[0];
+            const audioData = part?.inlineData?.data;
+            const mimeType = part?.inlineData?.mimeType;
+
+            if (audioData && mimeType && mimeType.startsWith("audio/")) {
+                const rateMatch = mimeType.match(/rate=(\d+)/);
+                const sampleRate = rateMatch ? parseInt(rateMatch[1], 10) : 24000;
+
+                const pcmData = base64ToArrayBuffer(audioData);
+                const pcm16 = new Int16Array(pcmData);
+                const wavBlob = pcmToWav(pcm16, sampleRate);
+                return URL.createObjectURL(wavBlob);
+            } else {
+                throw new Error("No audio payload extracted from Gemini response.");
+            }
+        }
+
+        function base64ToArrayBuffer(base64) {
+            const binaryString = window.atob(base64);
+            const len = binaryString.length;
+            const bytes = new Uint8Array(len);
+            for (let i = 0; i < len; i++) {
+                bytes[i] = binaryString.charCodeAt(i);
+            }
+            return bytes.buffer;
+        }
+
+        // WAV Header Generation logic
+        function pcmToWav(pcm16Array, sampleRate) {
+            const buffer = new ArrayBuffer(44 + pcm16Array.length * 2);
+            const view = new DataView(buffer);
+            writeString(view, 0, 'RIFF');
+            view.setUint32(4, 36 + pcm16Array.length * 2, true);
+            writeString(view, 8, 'WAVE');
+            writeString(view, 12, 'fmt ');
+            view.setUint32(16, 16, true);
+            view.setUint16(20, 1, true);
+            view.setUint16(22, 1, true);
+            view.setUint32(24, sampleRate, true);
+            view.setUint32(28, sampleRate * 2, true);
+            view.setUint16(32, 2, true);
+            view.setUint16(34, 16, true);
+            writeString(view, 36, 'data');
+            view.setUint32(40, pcm16Array.length * 2, true);
+
+            for (let i = 0; i < pcm16Array.length; i++) {
+                view.setInt16(44 + i * 2, pcm16Array[i], true);
+            }
+
+            return new Blob([view], { type: 'audio/wav' });
+        }
+
+        function writeString(view, offset, string) {
+            for (let i = 0; i < string.length; i++) {
+                view.setUint8(offset + i, string.charCodeAt(i));
+            }
+        }
+
+        // PRINT SHEETS COMPILER
+        function openPrintPreview() {
+            if (currentWords.length === 0) {
+                showToast("인쇄할 단어 보드가 비어있습니다.", "warning");
+                return;
+            }
+            document.getElementById('print-modal').classList.remove('hidden');
+        }
+
+        function closePrintPreview() {
+            document.getElementById('print-modal').classList.add('hidden');
+        }
+
+        function triggerPrint(type) {
+            closePrintPreview();
+            const container = document.getElementById('print-items-grid');
+            const title = document.getElementById('print-title');
+            container.innerHTML = '';
+
+            if (type === 'practice') {
+                title.textContent = "✍️ 초등 필수 영어단어 따라쓰기 연습장";
+                currentWords.forEach((wordObj, i) => {
+                    const block = document.createElement('div');
+                    block.className = "p-4 border border-slate-300 rounded-xl flex justify-between items-center print-card";
+                    block.innerHTML = `
+                        <div>
+                            <span class="text-sm font-bold text-slate-400 mr-2">${String(i+1).padStart(2, '0')}</span>
+                            <span class="text-lg font-black text-slate-800 inline-block w-28">${escapeHtml(wordObj.word)}</span>
+                            <span class="text-xs text-slate-500 bg-slate-100 px-2 py-1 rounded-md">[${escapeHtml(wordObj.phonics)}] ${escapeHtml(wordObj.meaning)}</span>
+                        </div>
+                        <div class="flex space-x-2">
+                            <!-- Printable dotted practice grids -->
+                            <div class="w-28 h-8 border border-dashed border-slate-400 rounded"></div>
+                            <div class="w-28 h-8 border border-dashed border-slate-400 rounded"></div>
+                        </div>
+                    `;
+                    container.appendChild(block);
+                });
+            } else {
+                title.textContent = "📝 초등 영어 단원평가 단어시험지";
+                currentWords.forEach((wordObj, i) => {
+                    const block = document.createElement('div');
+                    block.className = "p-4 border border-slate-300 rounded-xl flex justify-between items-center print-card";
+                    block.innerHTML = `
+                        <div>
+                            <span class="text-sm font-bold text-slate-400 mr-2">${String(i+1).padStart(2, '0')}</span>
+                            <span class="text-lg font-black text-slate-800 inline-block w-28">${escapeHtml(wordObj.word)}</span>
+                        </div>
+                        <div class="flex-1 text-right">
+                            <span class="text-xs font-bold text-slate-400">뜻: __________________________</span>
+                        </div>
+                    `;
+                    container.appendChild(block);
+                });
+            }
+
+            // Execute system print dialog
+            setTimeout(() => {
+                window.print();
+            }, 300);
+        }
+
+        function openDetailModal(wordIdx) {
+            const wordObj = currentWords[wordIdx];
+            if (!wordObj) return;
+
+            document.getElementById('modal-badge').textContent = `Card ${String(wordIdx + 1).padStart(2, '0')}`;
+            document.getElementById('modal-word').textContent = wordObj.word;
+            document.getElementById('modal-meaning').textContent = wordObj.meaning;
+            document.getElementById('modal-phonics').textContent = wordObj.phonics;
+            document.getElementById('modal-example-en').textContent = wordObj.example_en;
+            document.getElementById('modal-example-ko').textContent = wordObj.example_ko;
+
+            document.getElementById('btn-modal-phonics-speak').onclick = () => {
+                speakSingle(wordObj.word);
+            };
+
+            document.getElementById('btn-modal-play-sentence').onclick = () => {
+                speakSingle(wordObj.example_en, 0.9);
+            };
+
+            const modal = document.getElementById('detail-modal');
+            modal.classList.remove('hidden');
+            setTimeout(() => {
+                modal.firstElementChild.classList.replace('scale-95', 'scale-100');
+            }, 50);
+        }
+
+        function closeDetailModal() {
+            const modal = document.getElementById('detail-modal');
+            modal.firstElementChild.classList.replace('scale-100', 'scale-95');
+            setTimeout(() => {
+                modal.classList.add('hidden');
+            }, 100);
+        }
+
+        function speakSingle(phrase, speed = 1.0) {
+            if (window.speechSynthesis) {
+                window.speechSynthesis.cancel();
+                const u = new SpeechSynthesisUtterance(phrase);
+                u.lang = 'en-US';
+                u.rate = speed;
+                window.speechSynthesis.speak(u);
+            }
+        }
+
+        // HTML/속성 이스케이프 (특수문자 단어 깨짐·오류 방지)
+        function escapeHtml(str) {
+            return String(str == null ? '' : str)
+                .replace(/&/g, '&amp;')
+                .replace(/</g, '&lt;')
+                .replace(/>/g, '&gt;')
+                .replace(/"/g, '&quot;');
+        }
+        function escapeAttr(str) {
+            return String(str == null ? '' : str).replace(/\\/g, '\\\\').replace(/'/g, "\\'");
+        }
+
+        function showToast(message, type = "info") {
+            const container = document.getElementById('toast-container');
+            const toast = document.createElement('div');
+
+            const bgClass = {
+                success: 'bg-emerald-600 border-emerald-500 text-white',
+                warning: 'bg-amber-500 border-amber-400 text-white',
+                error: 'bg-rose-600 border-rose-500 text-white',
+                info: 'bg-slate-800 border-slate-700 text-white'
+            }[type];
+
+            const iconClass = {
+                success: 'fa-circle-check',
+                warning: 'fa-triangle-exclamation',
+                error: 'fa-circle-xmark',
+                info: 'fa-circle-info'
+            }[type];
+
+            toast.className = `flex items-center space-x-3 p-4 rounded-2xl border shadow-xl transition-all duration-300 transform translate-y-2 opacity-0 pointer-events-auto ${bgClass}`;
+            toast.innerHTML = `
+                <i class="fa-solid ${iconClass} text-lg"></i>
+                <span class="text-xs font-bold">${escapeHtml(message)}</span>
+            `;
+
+            container.appendChild(toast);
+
+            setTimeout(() => {
+                toast.classList.replace('translate-y-2', 'translate-y-0');
+                toast.classList.replace('opacity-0', 'opacity-100');
+            }, 10);
+
+            setTimeout(() => {
+                toast.classList.replace('translate-y-0', 'translate-y-2');
+                toast.classList.replace('opacity-100', 'opacity-0');
+                setTimeout(() => {
+                    toast.remove();
+                }, 300);
+            }, 3500);
+        }
+
+        // 일부 브라우저는 voice 목록을 비동기로 로드 → 미리 준비
+        if (window.speechSynthesis) {
+            window.speechSynthesis.onvoiceschanged = () => { /* 캐시 워밍업 */ window.speechSynthesis.getVoices(); };
+        }
+
+        // ══════════════════════════════════════════════════════════════
+        // 📊 GRADEBOOK (학생 점수 기록부)
+        //   students: [{id, name}]
+        //   dates:    [{id, date, total}]
+        //   scores:   { [studentId]: { [dateId]: number } }
+        // ══════════════════════════════════════════════════════════════
+        let gradebook = { students: [], dates: [], scores: {} };
+
+        const modeBtnClassroom = document.getElementById('mode-btn-classroom');
+        const modeBtnGradebook = document.getElementById('mode-btn-gradebook');
+        const viewClassroom = document.getElementById('view-classroom');
+        const viewGradebook = document.getElementById('view-gradebook');
+
+        const gbStudentName = document.getElementById('gb-student-name');
+        const gbAddStudent = document.getElementById('gb-add-student');
+        const gbDateInput = document.getElementById('gb-date-input');
+        const gbDateTotal = document.getElementById('gb-date-total');
+        const gbAddDate = document.getElementById('gb-add-date');
+        const gbTable = document.getElementById('gb-table');
+        const gbEmpty = document.getElementById('gb-empty');
+        const gbRankDate = document.getElementById('gb-rank-date');
+        const gbRanking = document.getElementById('gb-ranking');
+        const gbSummary = document.getElementById('gradebook-summary');
+
+        function genId(prefix) {
+            return prefix + '_' + Date.now().toString(36) + Math.random().toString(36).slice(2, 6);
+        }
+
+        function loadGradebook() {
+            try {
+                const raw = JSON.parse(localStorage.getItem('edu_gradebook'));
+                gradebook = raw && typeof raw === 'object' ? raw : { students: [], dates: [], scores: {} };
+            } catch (e) {
+                gradebook = { students: [], dates: [], scores: {} };
+            }
+            if (!Array.isArray(gradebook.students)) gradebook.students = [];
+            if (!Array.isArray(gradebook.dates)) gradebook.dates = [];
+            if (!gradebook.scores || typeof gradebook.scores !== 'object') gradebook.scores = {};
+        }
+
+        function saveGradebook() {
+            localStorage.setItem('edu_gradebook', JSON.stringify(gradebook));
+            scheduleCloudSave(); // 클라우드 연결돼 있으면 자동 동기화
+        }
+
+        // Mode switching
+        function switchMode(mode) {
+            const activeCls = "flex-1 py-2.5 rounded-2xl text-sm font-extrabold transition-all bg-indigo-600 text-white shadow-sm flex items-center justify-center gap-2";
+            const idleCls = "flex-1 py-2.5 rounded-2xl text-sm font-extrabold transition-all text-slate-500 hover:text-indigo-600 flex items-center justify-center gap-2";
+            if (mode === 'gradebook') {
+                viewClassroom.classList.add('hidden');
+                viewGradebook.classList.remove('hidden');
+                modeBtnGradebook.className = activeCls;
+                modeBtnClassroom.className = idleCls;
+                renderGradebook();
+            } else {
+                viewGradebook.classList.add('hidden');
+                viewClassroom.classList.remove('hidden');
+                modeBtnClassroom.className = activeCls;
+                modeBtnGradebook.className = idleCls;
+                stopAllSpeech();
+            }
+        }
+        modeBtnClassroom.addEventListener('click', () => switchMode('classroom'));
+        modeBtnGradebook.addEventListener('click', () => switchMode('gradebook'));
+
+        // ── CRUD ──
+        function addStudent() {
+            const name = gbStudentName.value.trim();
+            if (!name) { showToast("학생 이름을 입력해 주세요!", "warning"); return; }
+            gradebook.students.push({ id: genId('s'), name });
+            gbStudentName.value = '';
+            saveGradebook();
+            renderGradebook();
+            showToast(`"${name}" 학생을 추가했습니다.`, "success");
+        }
+
+        function removeStudent(id) {
+            const s = gradebook.students.find(x => x.id === id);
+            if (!s) return;
+            if (!confirm(`"${s.name}" 학생을 삭제할까요? 입력된 점수도 함께 삭제됩니다.`)) return;
+            gradebook.students = gradebook.students.filter(x => x.id !== id);
+            delete gradebook.scores[id];
+            saveGradebook();
+            renderGradebook();
+            showToast("학생을 삭제했습니다.", "info");
+        }
+
+        function renameStudent(id, newName) {
+            const s = gradebook.students.find(x => x.id === id);
+            if (!s) return;
+            s.name = newName.trim() || s.name;
+            saveGradebook();
+        }
+
+        function addDate() {
+            const date = gbDateInput.value;
+            if (!date) { showToast("날짜를 선택해 주세요!", "warning"); return; }
+            const total = gbDateTotal.value ? Math.max(1, parseInt(gbDateTotal.value)) : null;
+            gradebook.dates.push({ id: genId('d'), date, total });
+            // 날짜순 정렬
+            gradebook.dates.sort((a, b) => a.date.localeCompare(b.date));
+            gbDateTotal.value = '';
+            saveGradebook();
+            renderGradebook();
+            showToast(`${date} 시험 열을 추가했습니다.`, "success");
+        }
+
+        function removeDate(id) {
+            const d = gradebook.dates.find(x => x.id === id);
+            if (!d) return;
+            if (!confirm(`${d.date} 열을 삭제할까요? 해당 날짜의 점수도 함께 삭제됩니다.`)) return;
+            gradebook.dates = gradebook.dates.filter(x => x.id !== id);
+            Object.keys(gradebook.scores).forEach(sid => { delete gradebook.scores[sid][id]; });
+            saveGradebook();
+            renderGradebook();
+            showToast("날짜 열을 삭제했습니다.", "info");
+        }
+
+        function getScore(studentId, dateId) {
+            const row = gradebook.scores[studentId];
+            if (!row) return null;
+            const v = row[dateId];
+            return (v === undefined || v === null || v === '') ? null : Number(v);
+        }
+
+        function setScore(studentId, dateId, rawValue) {
+            if (!gradebook.scores[studentId]) gradebook.scores[studentId] = {};
+            if (rawValue === '' || rawValue === null || rawValue === undefined) {
+                delete gradebook.scores[studentId][dateId];
+            } else {
+                let v = Math.max(0, parseInt(rawValue) || 0);
+                const d = gradebook.dates.find(x => x.id === dateId);
+                if (d && d.total) v = Math.min(v, d.total);
+                gradebook.scores[studentId][dateId] = v;
+            }
+            saveGradebook();
+            renderGradebook();
+        }
+
+        // 날짜별 등수 계산 (동점은 같은 등수)
+        function rankMapForDate(dateId) {
+            const entries = gradebook.students
+                .map(s => ({ id: s.id, score: getScore(s.id, dateId) }))
+                .filter(e => e.score !== null);
+            entries.sort((a, b) => b.score - a.score);
+            const map = {};
+            let rank = 0, prev = null, count = 0;
+            entries.forEach(e => {
+                count++;
+                if (prev === null || e.score < prev) { rank = count; prev = e.score; }
+                map[e.id] = rank;
+            });
+            return map;
+        }
+
+        function rankBadge(rank) {
+            if (rank === 1) return '🥇';
+            if (rank === 2) return '🥈';
+            if (rank === 3) return '🥉';
+            return rank + '등';
+        }
+
+        // 학생별 통계 (평균 / 총점 / 입력된 점수 목록)
+        function studentStats(studentId) {
+            const entered = [];
+            gradebook.dates.forEach(d => {
+                const v = getScore(studentId, d.id);
+                if (v !== null) entered.push({ score: v, total: d.total });
+            });
+            const sum = entered.reduce((a, e) => a + e.score, 0);
+            const avg = entered.length ? sum / entered.length : null;
+            return { entered, sum, avg };
+        }
+
+        // 전체 학생/날짜 중 최대 점수 (추이 그래프 정규화용)
+        function globalMaxRawScore() {
+            let m = 0;
+            gradebook.students.forEach(s => gradebook.dates.forEach(d => {
+                const v = getScore(s.id, d.id);
+                if (v !== null && v > m) m = v;
+            }));
+            return m || 1;
+        }
+
+        // 미니 추이 그래프 (SVG 스파크라인). 만점이 있으면 비율(%)로, 없으면 전체 최댓값 기준으로 정규화
+        function sparklineSVG(studentId, globalMax) {
+            const pts = [];
+            gradebook.dates.forEach(d => {
+                const v = getScore(studentId, d.id);
+                if (v === null) return;
+                const norm = d.total ? Math.min(1, v / d.total) : Math.min(1, v / globalMax);
+                pts.push(norm);
+            });
+            const W = 90, H = 30, pad = 4;
+            if (pts.length === 0) return '<span class="text-[10px] text-slate-300">기록 없음</span>';
+
+            if (pts.length === 1) {
+                const y = pad + (1 - pts[0]) * (H - pad * 2);
+                return `<svg width="${W}" height="${H}" viewBox="0 0 ${W} ${H}" class="inline-block align-middle"><circle cx="${(W/2).toFixed(1)}" cy="${y.toFixed(1)}" r="3" fill="#4f46e5"/></svg>`;
+            }
+
+            const n = pts.length;
+            const stepX = (W - pad * 2) / (n - 1);
+            const coords = pts.map((p, i) => [pad + i * stepX, pad + (1 - p) * (H - pad * 2)]);
+            const poly = coords.map(c => `${c[0].toFixed(1)},${c[1].toFixed(1)}`).join(' ');
+            const last = coords[coords.length - 1];
+            const up = pts[n - 1] >= pts[0];           // 첫 기록 대비 상승/하락
+            const color = up ? '#4f46e5' : '#e11d48';   // 상승=인디고, 하락=로즈
+            const arrow = up ? '▲' : '▼';
+            return `<div class="flex items-center justify-center gap-1">
+                <svg width="${W}" height="${H}" viewBox="0 0 ${W} ${H}" class="inline-block align-middle">
+                    <polyline fill="none" stroke="${color}" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" points="${poly}"/>
+                    <circle cx="${last[0].toFixed(1)}" cy="${last[1].toFixed(1)}" r="2.8" fill="${color}"/>
+                </svg>
+                <span class="text-[9px] font-extrabold" style="color:${color}">${arrow}</span>
+            </div>`;
+        }
+
+        function renderGradebook() {
+            const nS = gradebook.students.length, nD = gradebook.dates.length;
+            gbSummary.textContent = `학생 ${nS}명 · 기록일 ${nD}일`;
+
+            // 표 표시 여부
+            if (nS === 0 && nD === 0) {
+                gbTable.classList.add('hidden');
+                gbEmpty.classList.remove('hidden');
+            } else {
+                gbEmpty.classList.add('hidden');
+                gbTable.classList.remove('hidden');
+            }
+
+            // 각 날짜별 등수 사전 계산
+            const ranks = {};
+            gradebook.dates.forEach(d => { ranks[d.id] = rankMapForDate(d.id); });
+
+            // ── 헤더 ──
+            let html = '<thead><tr>';
+            html += `<th class="sticky left-0 bg-indigo-50 z-10 text-left text-xs font-extrabold text-slate-600 px-3 py-2 rounded-l-lg border-b-2 border-indigo-100 min-w-[110px]">학생</th>`;
+            gradebook.dates.forEach(d => {
+                const totalLabel = d.total ? `<span class="text-[10px] text-slate-400 font-semibold">만점 ${d.total}</span>` : `<span class="text-[10px] text-slate-300">만점 -</span>`;
+                html += `<th class="bg-indigo-50 px-2 py-2 border-b-2 border-indigo-100 min-w-[88px]">
+                    <div class="flex flex-col items-center gap-0.5">
+                        <div class="flex items-center gap-1">
+                            <span class="text-[11px] font-extrabold text-indigo-700">${formatDate(d.date)}</span>
+                            <button onclick="removeDate('${d.id}')" class="text-rose-400 hover:text-rose-600 text-[10px]" title="이 날짜 삭제"><i class="fa-solid fa-circle-xmark"></i></button>
+                        </div>
+                        ${totalLabel}
+                    </div>
+                </th>`;
+            });
+            if (nD === 0 && nS > 0) {
+                html += `<th class="px-4 py-2 text-[11px] text-slate-400 font-medium">← 위에서 날짜를 추가하세요</th>`;
+            }
+            // 학생별 요약 칼럼 (날짜가 있을 때만)
+            if (nD > 0) {
+                html += `<th class="bg-amber-50 px-2 py-2 border-b-2 border-amber-100 min-w-[60px]"><span class="text-[11px] font-extrabold text-amber-700">평균</span></th>`;
+                html += `<th class="bg-amber-50 px-2 py-2 border-b-2 border-amber-100 min-w-[60px]"><span class="text-[11px] font-extrabold text-amber-700">총점</span></th>`;
+                html += `<th class="bg-amber-50 px-2 py-2 border-b-2 border-amber-100 min-w-[96px] rounded-r-lg"><span class="text-[11px] font-extrabold text-amber-700">추이 📈</span></th>`;
+            }
+            html += '</tr></thead>';
+
+            // 추이 그래프 정규화를 위한 전체 최댓값
+            const globalMax = globalMaxRawScore();
+
+            // ── 본문 ──
+            html += '<tbody>';
+            if (nS === 0 && nD > 0) {
+                html += `<tr><td colspan="${nD + 4}" class="text-center text-[11px] text-slate-400 py-4">위에서 학생을 추가하세요</td></tr>`;
+            }
+            gradebook.students.forEach((s, ri) => {
+                html += '<tr class="' + (ri % 2 ? 'bg-slate-50/40' : '') + '">';
+                html += `<td class="sticky left-0 z-10 px-2 py-1.5 border-b border-slate-100 ${ri % 2 ? 'bg-slate-50' : 'bg-white'}">
+                    <div class="flex items-center gap-1">
+                        <input value="${escapeHtml(s.name)}" onchange="renameStudent('${s.id}', this.value)" class="w-[88px] font-bold text-slate-700 text-xs bg-transparent border border-transparent hover:border-slate-200 focus:border-indigo-400 rounded px-1.5 py-1 outline-none transition">
+                        <button onclick="removeStudent('${s.id}')" class="text-slate-300 hover:text-rose-500 text-xs" title="학생 삭제"><i class="fa-solid fa-user-minus"></i></button>
+                    </div>
+                </td>`;
+                gradebook.dates.forEach(d => {
+                    const score = getScore(s.id, d.id);
+                    const rank = ranks[d.id][s.id];
+                    let chip = '';
+                    if (rank) {
+                        const top3 = rank <= 3;
+                        chip = `<span class="text-[9px] font-extrabold ${top3 ? '' : 'text-slate-400'} mt-0.5">${rankBadge(rank)}</span>`;
+                    }
+                    html += `<td class="px-1.5 py-1.5 border-b border-slate-100 text-center">
+                        <div class="flex flex-col items-center">
+                            <input type="number" min="0" ${d.total ? `max="${d.total}"` : ''} value="${score === null ? '' : score}"
+                                onchange="setScore('${s.id}', '${d.id}', this.value)"
+                                class="w-12 text-center text-sm font-bold text-indigo-900 border border-slate-200 rounded-lg py-1 focus:ring-2 focus:ring-indigo-200 focus:border-indigo-500 outline-none ${rank === 1 ? 'bg-amber-50 border-amber-300' : ''}">
+                            ${chip}
+                        </div>
+                    </td>`;
+                });
+                // 학생별 요약 셀 (평균 / 총점 / 추이)
+                if (nD > 0) {
+                    const st = studentStats(s.id);
+                    const avgTxt = st.avg === null ? '<span class="text-slate-300">-</span>' : `<span class="text-amber-700 font-extrabold">${st.avg.toFixed(1)}</span>`;
+                    const sumTxt = st.entered.length === 0 ? '<span class="text-slate-300">-</span>' : `<span class="text-slate-700 font-extrabold">${st.sum}</span>`;
+                    html += `<td class="px-2 py-1.5 border-b border-slate-100 text-center bg-amber-50/30 text-sm">${avgTxt}</td>`;
+                    html += `<td class="px-2 py-1.5 border-b border-slate-100 text-center bg-amber-50/30 text-sm">${sumTxt}</td>`;
+                    html += `<td class="px-2 py-1.5 border-b border-slate-100 text-center bg-amber-50/30">${sparklineSVG(s.id, globalMax)}</td>`;
+                }
+                html += '</tr>';
+            });
+            html += '</tbody>';
+
+            gbTable.innerHTML = html;
+
+            renderRankingPanel(ranks);
+            renderChart();
+        }
+
+        function renderRankingPanel(ranks) {
+            // 날짜 선택 드롭다운 유지
+            const prev = gbRankDate.value;
+            gbRankDate.innerHTML = '';
+            if (gradebook.dates.length === 0) {
+                gbRanking.innerHTML = `<div class="text-center text-[11px] text-slate-400 py-4">날짜를 추가하면 등수가 표시됩니다.</div>`;
+                gbRankDate.innerHTML = `<option>날짜 없음</option>`;
+                return;
+            }
+            gradebook.dates.forEach(d => {
+                const opt = document.createElement('option');
+                opt.value = d.id;
+                opt.textContent = formatDate(d.date) + (d.total ? ` (만점 ${d.total})` : '');
+                gbRankDate.appendChild(opt);
+            });
+            // 이전 선택 복원, 없으면 마지막 날짜
+            const exists = gradebook.dates.some(d => d.id === prev);
+            gbRankDate.value = exists ? prev : gradebook.dates[gradebook.dates.length - 1].id;
+
+            drawRankingList(gbRankDate.value, ranks);
+        }
+
+        function drawRankingList(dateId, ranks) {
+            const rankMap = (ranks && ranks[dateId]) ? ranks[dateId] : rankMapForDate(dateId);
+            const d = gradebook.dates.find(x => x.id === dateId);
+            const list = gradebook.students
+                .map(s => ({ name: s.name, score: getScore(s.id, dateId), rank: rankMap[s.id] }))
+                .filter(e => e.score !== null)
+                .sort((a, b) => a.rank - b.rank || b.score - a.score);
+
+            if (list.length === 0) {
+                gbRanking.innerHTML = `<div class="text-center text-[11px] text-slate-400 py-4">이 날짜에 입력된 점수가 없습니다.</div>`;
+                return;
+            }
+
+            gbRanking.innerHTML = list.map(e => {
+                const top = e.rank <= 3;
+                const totalTxt = d && d.total ? ` <span class="text-slate-400 font-medium">/ ${d.total}</span>` : '';
+                return `<div class="flex items-center justify-between px-4 py-2.5 rounded-2xl border ${top ? 'bg-amber-50/60 border-amber-200' : 'bg-slate-50 border-slate-100'}">
+                    <div class="flex items-center gap-3">
+                        <span class="text-lg font-black w-9 text-center">${rankBadge(e.rank)}</span>
+                        <span class="font-bold text-slate-700 text-sm">${escapeHtml(e.name)}</span>
+                    </div>
+                    <span class="font-extrabold text-indigo-700 text-sm">${e.score}개${totalTxt}</span>
+                </div>`;
+            }).join('');
+        }
+
+        function formatDate(iso) {
+            // "2026-06-15" → "6/15"
+            const parts = String(iso).split('-');
+            if (parts.length === 3) return `${parseInt(parts[1])}/${parseInt(parts[2])}`;
+            return iso;
+        }
+
+        // ══════════════════════════════════════════════════════════════
+        // 📈 BIG CHART (꺾은선 추이 / 막대 평균) — 외부 라이브러리 없이 SVG로 그림
+        // ══════════════════════════════════════════════════════════════
+        let chartMode = 'line';
+        const CHART_PALETTE = ['#4f46e5', '#db2777', '#059669', '#d97706', '#0891b2', '#7c3aed', '#dc2626', '#16a34a', '#ca8a04', '#0d9488', '#c026d3', '#65a30d'];
+        const chartArea = document.getElementById('chart-area');
+        const chartLegend = document.getElementById('chart-legend');
+        const chartBtnLine = document.getElementById('chart-btn-line');
+        const chartBtnBar = document.getElementById('chart-btn-bar');
+
+        function setChartMode(mode) {
+            chartMode = mode;
+            const active = "px-3 py-1.5 rounded-xl text-xs font-bold transition-all bg-white text-indigo-600 shadow-sm border border-slate-200/50";
+            const idle = "px-3 py-1.5 rounded-xl text-xs font-bold transition-all text-slate-500 hover:text-indigo-600";
+            chartBtnLine.className = mode === 'line' ? active : idle;
+            chartBtnBar.className = mode === 'bar' ? active : idle;
+            chartBtnLine.innerHTML = '<i class="fa-solid fa-chart-line mr-1"></i> 꺾은선 (추이)';
+            chartBtnBar.innerHTML = '<i class="fa-solid fa-chart-column mr-1"></i> 막대 (평균)';
+            renderChart();
+        }
+        chartBtnLine.addEventListener('click', () => setChartMode('line'));
+        chartBtnBar.addEventListener('click', () => setChartMode('bar'));
+
+        // y축 눈금을 보기 좋은 최댓값으로 반올림
+        function niceMax(v) {
+            if (v <= 5) return 5;
+            if (v <= 10) return 10;
+            if (v <= 20) return Math.ceil(v / 5) * 5;
+            return Math.ceil(v / 10) * 10;
+        }
+
+        function renderChart() {
+            if (!chartArea) return;
+            const nS = gradebook.students.length, nD = gradebook.dates.length;
+            if (nS === 0 || nD === 0) {
+                chartArea.innerHTML = `<div class="text-center text-[11px] text-slate-400 py-10">학생과 날짜를 추가하면 차트가 표시됩니다.</div>`;
+                chartLegend.innerHTML = '';
+                return;
+            }
+            if (chartMode === 'bar') renderBarChart();
+            else renderLineChart();
+        }
+
+        function renderLineChart() {
+            const dates = gradebook.dates;
+            const students = gradebook.students;
+            let dataMax = 0;
+            students.forEach(s => dates.forEach(d => {
+                const v = getScore(s.id, d.id);
+                if (v !== null && v > dataMax) dataMax = v;
+            }));
+            dates.forEach(d => { if (d.total && d.total > dataMax) dataMax = d.total; });
+            const yMax = niceMax(dataMax || 1);
+
+            const mL = 38, mR = 14, mT = 14, mB = 42;
+            const plotW = Math.max(440, (dates.length - 1) * 80 + 40);
+            const plotH = 240;
+            const W = mL + plotW + mR, H = mT + plotH + mB;
+            const x = i => mL + (dates.length === 1 ? plotW / 2 : (i * plotW / (dates.length - 1)));
+            const y = val => mT + plotH - (val / yMax) * plotH;
+
+            let svg = `<svg width="${W}" height="${H}" viewBox="0 0 ${W} ${H}" class="block" style="min-width:${W}px">`;
+            const ticks = 4;
+            for (let t = 0; t <= ticks; t++) {
+                const val = yMax * t / ticks;
+                const yy = y(val);
+                svg += `<line x1="${mL}" y1="${yy.toFixed(1)}" x2="${mL + plotW}" y2="${yy.toFixed(1)}" stroke="#eef2f7" stroke-width="1"/>`;
+                svg += `<text x="${mL - 6}" y="${(yy + 3).toFixed(1)}" text-anchor="end" font-size="9" fill="#94a3b8">${Math.round(val)}</text>`;
+            }
+            dates.forEach((d, i) => {
+                svg += `<text x="${x(i).toFixed(1)}" y="${H - mB + 16}" text-anchor="middle" font-size="9" fill="#64748b">${escapeHtml(formatDate(d.date))}</text>`;
+            });
+            students.forEach((s, si) => {
+                const color = CHART_PALETTE[si % CHART_PALETTE.length];
+                const pts = [];
+                dates.forEach((d, i) => {
+                    const v = getScore(s.id, d.id);
+                    if (v === null) return;
+                    pts.push({ x: x(i), y: y(v) });
+                });
+                if (pts.length === 0) return;
+                if (pts.length >= 2) {
+                    const poly = pts.map(p => `${p.x.toFixed(1)},${p.y.toFixed(1)}`).join(' ');
+                    svg += `<polyline fill="none" stroke="${color}" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" points="${poly}"/>`;
+                }
+                pts.forEach(p => { svg += `<circle cx="${p.x.toFixed(1)}" cy="${p.y.toFixed(1)}" r="3" fill="${color}"/>`; });
+            });
+            svg += '</svg>';
+            chartArea.innerHTML = svg;
+            renderLegend();
+        }
+
+        function renderBarChart() {
+            const students = gradebook.students;
+            const stats = students.map((s, si) => ({ name: s.name, avg: studentStats(s.id).avg, color: CHART_PALETTE[si % CHART_PALETTE.length] }));
+            const dataMax = stats.reduce((m, e) => Math.max(m, e.avg || 0), 0);
+            const yMax = niceMax(dataMax || 1);
+
+            const mL = 38, mR = 14, mT = 14, mB = 54;
+            const barGap = 18, barW = 38;
+            const plotW = Math.max(360, students.length * (barW + barGap) + barGap);
+            const plotH = 240;
+            const W = mL + plotW + mR, H = mT + plotH + mB;
+            const y = val => mT + plotH - (val / yMax) * plotH;
+
+            let svg = `<svg width="${W}" height="${H}" viewBox="0 0 ${W} ${H}" class="block" style="min-width:${W}px">`;
+            const ticks = 4;
+            for (let t = 0; t <= ticks; t++) {
+                const val = yMax * t / ticks;
+                const yy = y(val);
+                svg += `<line x1="${mL}" y1="${yy.toFixed(1)}" x2="${mL + plotW}" y2="${yy.toFixed(1)}" stroke="#eef2f7" stroke-width="1"/>`;
+                svg += `<text x="${mL - 6}" y="${(yy + 3).toFixed(1)}" text-anchor="end" font-size="9" fill="#94a3b8">${Math.round(val)}</text>`;
+            }
+            stats.forEach((e, i) => {
+                const bx = mL + barGap + i * (barW + barGap);
+                if (e.avg !== null) {
+                    const by = y(e.avg);
+                    const bh = mT + plotH - by;
+                    svg += `<rect x="${bx.toFixed(1)}" y="${by.toFixed(1)}" width="${barW}" height="${Math.max(0, bh).toFixed(1)}" rx="5" fill="${e.color}"/>`;
+                    svg += `<text x="${(bx + barW / 2).toFixed(1)}" y="${(by - 4).toFixed(1)}" text-anchor="middle" font-size="10" font-weight="bold" fill="${e.color}">${e.avg.toFixed(1)}</text>`;
+                }
+                const nm = e.name.length > 5 ? e.name.slice(0, 5) + '…' : e.name;
+                svg += `<text x="${(bx + barW / 2).toFixed(1)}" y="${H - mB + 16}" text-anchor="middle" font-size="9" fill="#64748b">${escapeHtml(nm)}</text>`;
+            });
+            svg += '</svg>';
+            chartArea.innerHTML = svg;
+            chartLegend.innerHTML = `<span class="text-[10px] text-slate-400">각 학생의 평균 맞은 갯수 (입력된 시험 기준)</span>`;
+        }
+
+        function renderLegend() {
+            chartLegend.innerHTML = gradebook.students.map((s, si) => {
+                const color = CHART_PALETTE[si % CHART_PALETTE.length];
+                return `<span class="flex items-center gap-1.5 text-[11px] font-bold text-slate-600">
+                    <span class="w-3 h-3 rounded-full inline-block" style="background:${color}"></span>${escapeHtml(s.name)}
+                </span>`;
+            }).join('');
+        }
+
+        function exportGradebookCSV() {
+            if (gradebook.students.length === 0 || gradebook.dates.length === 0) {
+                showToast("내보낼 점수 데이터가 없습니다.", "warning");
+                return;
+            }
+            const header = ['학생', ...gradebook.dates.map(d => d.date + (d.total ? `(만점${d.total})` : '')), '평균', '총점'];
+            const lines = [header.map(csvField).join(',')];
+            gradebook.students.forEach(s => {
+                const st = studentStats(s.id);
+                const row = [s.name, ...gradebook.dates.map(d => {
+                    const v = getScore(s.id, d.id);
+                    return v === null ? '' : v;
+                }), st.avg === null ? '' : st.avg.toFixed(1), st.entered.length ? st.sum : ''];
+                lines.push(row.map(csvField).join(','));
+            });
+            const csv = '﻿' + lines.join('\r\n');
+            const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `점수기록부_${gradebook.students.length}명.csv`;
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+            showToast("점수 기록부를 CSV로 내보냈습니다! 📤", "success");
+        }
+
+        function clearGradebook() {
+            if (!confirm("점수 기록부의 모든 학생·날짜·점수를 삭제할까요? 되돌릴 수 없습니다.")) return;
+            gradebook = { students: [], dates: [], scores: {} };
+            saveGradebook();
+            renderGradebook();
+            showToast("점수 기록부를 초기화했습니다.", "info");
+        }
+
+        // Gradebook 이벤트 연결
+        gbAddStudent.addEventListener('click', addStudent);
+        gbStudentName.addEventListener('keydown', (e) => { if (e.key === 'Enter') addStudent(); });
+        gbAddDate.addEventListener('click', addDate);
+        gbDateTotal.addEventListener('keydown', (e) => { if (e.key === 'Enter') addDate(); });
+        document.getElementById('gb-export').addEventListener('click', exportGradebookCSV);
+        document.getElementById('gb-clear').addEventListener('click', clearGradebook);
+        gbRankDate.addEventListener('change', () => drawRankingList(gbRankDate.value));
+
+        // ══════════════════════════════════════════════════════════════
+        // ☁️ CLOUD SYNC (구글 앱스 스크립트 + 구글 시트) — 여러 컴퓨터 공유용
+        // ══════════════════════════════════════════════════════════════
+        const CLOUD_URL_DEFAULT = 'https://script.google.com/macros/s/AKfycbxO7w3PL-LmZW-H25gh2jSPxDtbeC_oXikaBT9WuTP2BcCiOty8ulmxdjFOqMdW63496Q/exec'; // 모든 기기에서 자동 사용 (공개 저장소면 URL이 노출됨)
+        let cloudSaveTimer = null;
+        const cloudUrlInput = document.getElementById('cloud-url');
+        const cloudTokenInput = document.getElementById('cloud-token');
+        const cloudConnectBtn = document.getElementById('cloud-connect');
+        const cloudReloadBtn = document.getElementById('cloud-reload');
+        const cloudStatusEl = document.getElementById('cloud-status');
+
+        function getCloudUrl() { return (localStorage.getItem('edu_cloud_url') || CLOUD_URL_DEFAULT || '').trim(); }
+        function getCloudToken() { return (localStorage.getItem('edu_cloud_token') || '').trim(); }
+        function cloudConfigured() { return getCloudUrl().length > 0; }
+
+        function setCloudStatus(text, type) {
+            const map = {
+                ok: 'bg-emerald-100 text-emerald-700',
+                saving: 'bg-amber-100 text-amber-700',
+                error: 'bg-rose-100 text-rose-700',
+                idle: 'bg-slate-100 text-slate-500'
+            };
+            cloudStatusEl.className = `text-[11px] font-bold px-2.5 py-1 rounded-full ${map[type] || map.idle}`;
+            cloudStatusEl.textContent = text;
+        }
+
+        async function cloudLoad(withToast) {
+            if (!cloudConfigured()) return false;
+            setCloudStatus('불러오는 중…', 'saving');
+            try {
+                const base = getCloudUrl();
+                const url = base + (base.includes('?') ? '&' : '?') + 't=' + Date.now();
+                const res = await fetch(url, { method: 'GET' });
+                if (!res.ok) throw new Error('HTTP ' + res.status);
+                const data = await res.json();
+                if (data && typeof data === 'object') {
+                    gradebook = {
+                        students: Array.isArray(data.students) ? data.students : [],
+                        dates: Array.isArray(data.dates) ? data.dates : [],
+                        scores: (data.scores && typeof data.scores === 'object') ? data.scores : {}
+                    };
+                    localStorage.setItem('edu_gradebook', JSON.stringify(gradebook)); // 오프라인 캐시
+                    renderGradebook();
+                    setCloudStatus('동기화됨 ☁️', 'ok');
+                    if (withToast) showToast('클라우드에서 점수를 불러왔습니다.', 'success');
+                    return true;
+                }
+                throw new Error('형식 오류');
+            } catch (err) {
+                console.error('cloudLoad error', err);
+                setCloudStatus('오프라인', 'error');
+                if (withToast) showToast('클라우드 불러오기 실패. URL을 확인하세요.', 'warning');
+                return false;
+            }
+        }
+
+        function scheduleCloudSave() {
+            if (!cloudConfigured()) return;
+            setCloudStatus('저장 중…', 'saving');
+            if (cloudSaveTimer) clearTimeout(cloudSaveTimer);
+            cloudSaveTimer = setTimeout(cloudPush, 1000); // 1초 디바운스(연속 입력 묶어서 전송)
+        }
+
+        async function cloudPush() {
+            if (!cloudConfigured()) return;
+            try {
+                // text/plain 으로 보내면 CORS 사전요청(preflight) 없이 앱스 스크립트가 받습니다
+                await fetch(getCloudUrl(), {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+                    body: JSON.stringify({ token: getCloudToken(), data: gradebook })
+                });
+                setCloudStatus('동기화됨 ☁️', 'ok');
+            } catch (err) {
+                console.error('cloudPush error', err);
+                setCloudStatus('저장 실패(오프라인)', 'error');
+            }
+        }
+
+        cloudConnectBtn.addEventListener('click', async () => {
+            const url = cloudUrlInput.value.trim();
+            if (!url) { showToast('웹앱 URL을 입력하세요.', 'warning'); return; }
+            if (!/^https:\/\/script\.google\.com\/.*\/exec/.test(url)) {
+                showToast('구글 앱스 스크립트 웹앱 URL(.../exec) 형식이 맞는지 확인하세요.', 'warning');
+            }
+            localStorage.setItem('edu_cloud_url', url);
+            localStorage.setItem('edu_cloud_token', cloudTokenInput.value.trim());
+            showToast('클라우드에 연결합니다. 데이터를 불러옵니다…', 'success');
+            await cloudLoad(true);
+        });
+        cloudReloadBtn.addEventListener('click', () => cloudLoad(true));
+
+        // On first boot-up, prepopulate animals list and retrieve Storage history
+        window.onload = function() {
+            loadStorageList();
+            loadGradebook();
+            // 날짜 입력 기본값 = 오늘
+            try { gbDateInput.value = new Date().toISOString().slice(0, 10); } catch (e) {}
+            // 클라우드 설정 복원 + 연결돼 있으면 최신 데이터 불러오기
+            cloudUrlInput.value = localStorage.getItem('edu_cloud_url') || '';
+            cloudTokenInput.value = localStorage.getItem('edu_cloud_token') || '';
+            if (cloudConfigured()) { setCloudStatus('연결됨', 'idle'); cloudLoad(false); }
+            else setCloudStatus('미연결', 'idle');
+            loadSamplePreset('animals');
+        };
+    </script>
+</body>
+</html>
