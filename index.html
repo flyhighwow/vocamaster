@@ -343,9 +343,20 @@
 
             <!-- Score Table -->
             <div class="bg-white rounded-3xl p-5 shadow-xl border border-indigo-50/50">
-                <h3 class="text-base font-extrabold flex items-center gap-2 text-slate-800 mb-3">
-                    <i class="fa-solid fa-table-cells text-indigo-500"></i> 점수표 <span class="text-[11px] font-semibold text-slate-400">(칸에 맞은 갯수를 입력하면 그날 등수가 자동 표시돼요)</span>
-                </h3>
+                <div class="flex flex-wrap items-center justify-between gap-2 mb-3">
+                    <h3 class="text-base font-extrabold flex items-center gap-2 text-slate-800">
+                        <i class="fa-solid fa-table-cells text-indigo-500"></i> 점수표 <span class="text-[11px] font-semibold text-slate-400 hidden sm:inline">(칸에 맞은 갯수를 입력하면 그날 등수 자동 표시)</span>
+                    </h3>
+                    <div class="flex items-center gap-2">
+                        <span id="gb-visible-note" class="text-[10px] text-slate-400"></span>
+                        <select id="gb-date-limit" class="border-2 border-slate-200 rounded-xl px-2 py-1.5 text-xs font-bold text-slate-700 focus:ring-2 focus:ring-indigo-200 focus:border-indigo-500 outline-none">
+                            <option value="10">최근 10회</option>
+                            <option value="20">최근 20회</option>
+                            <option value="50">최근 50회</option>
+                            <option value="all">전체 보기</option>
+                        </select>
+                    </div>
+                </div>
                 <div id="gb-empty" class="text-center py-10 text-sm text-slate-400">
                     <i class="fa-solid fa-clipboard-list text-3xl text-slate-200 mb-2 block"></i>
                     학생과 날짜를 추가하면 점수표가 나타납니다.
@@ -1911,6 +1922,7 @@
         //   scores:   { [studentId]: { [dateId]: number } }
         // ══════════════════════════════════════════════════════════════
         let gradebook = { students: [], dates: [], scores: {} };
+        let gbDateLimit = 10; // 표에 보여줄 최근 날짜 수 (숫자 또는 'all')
 
         const modeBtnClassroom = document.getElementById('mode-btn-classroom');
         const modeBtnGradebook = document.getElementById('mode-btn-gradebook');
@@ -2140,10 +2152,21 @@
             const ranks = {};
             gradebook.dates.forEach(d => { ranks[d.id] = rankMapForDate(d.id); });
 
+            // "최근 N회만 보기" 필터 — 표에는 일부 날짜만, 평균/총점/추이는 전체(100회) 반영
+            const visibleDates = (gbDateLimit === 'all') ? gradebook.dates : gradebook.dates.slice(-gbDateLimit);
+            const nV = visibleDates.length;
+            const noteEl = document.getElementById('gb-visible-note');
+            if (noteEl) noteEl.textContent = (nD > nV) ? `전체 ${nD}회 중 최근 ${nV}회 표시` : '';
+
+            // 요약 칼럼 오른쪽 고정 스타일 (가로 스크롤해도 항상 보임)
+            const stkAvg = 'position:sticky;right:160px;z-index:11;width:56px;min-width:56px;border-left:2px solid #fcd34d;background:#fffbeb;';
+            const stkSum = 'position:sticky;right:104px;z-index:11;width:56px;min-width:56px;background:#fffbeb;';
+            const stkTrend = 'position:sticky;right:0;z-index:11;width:104px;min-width:104px;background:#fffbeb;';
+
             // ── 헤더 ──
             let html = '<thead><tr>';
-            html += `<th class="sticky left-0 bg-indigo-50 z-10 text-left text-xs font-extrabold text-slate-600 px-3 py-2 rounded-l-lg border-b-2 border-indigo-100 min-w-[110px]">학생</th>`;
-            gradebook.dates.forEach(d => {
+            html += `<th class="sticky left-0 bg-indigo-50 z-20 text-left text-xs font-extrabold text-slate-600 px-3 py-2 rounded-l-lg border-b-2 border-indigo-100 min-w-[110px]">학생</th>`;
+            visibleDates.forEach(d => {
                 const totalLabel = d.total ? `<span class="text-[10px] text-slate-400 font-semibold">만점 ${d.total}</span>` : `<span class="text-[10px] text-slate-300">만점 -</span>`;
                 html += `<th class="bg-indigo-50 px-2 py-2 border-b-2 border-indigo-100 min-w-[88px]">
                     <div class="flex flex-col items-center gap-0.5">
@@ -2158,11 +2181,11 @@
             if (nD === 0 && nS > 0) {
                 html += `<th class="px-4 py-2 text-[11px] text-slate-400 font-medium">← 위에서 날짜를 추가하세요</th>`;
             }
-            // 학생별 요약 칼럼 (날짜가 있을 때만)
+            // 학생별 요약 칼럼 (날짜가 있을 때만, 오른쪽 고정)
             if (nD > 0) {
-                html += `<th class="bg-amber-50 px-2 py-2 border-b-2 border-amber-100 min-w-[60px]"><span class="text-[11px] font-extrabold text-amber-700">평균</span></th>`;
-                html += `<th class="bg-amber-50 px-2 py-2 border-b-2 border-amber-100 min-w-[60px]"><span class="text-[11px] font-extrabold text-amber-700">총점</span></th>`;
-                html += `<th class="bg-amber-50 px-2 py-2 border-b-2 border-amber-100 min-w-[96px] rounded-r-lg"><span class="text-[11px] font-extrabold text-amber-700">추이 📈</span></th>`;
+                html += `<th style="${stkAvg}" class="px-2 py-2 border-b-2 border-amber-100"><span class="text-[11px] font-extrabold text-amber-700">평균</span></th>`;
+                html += `<th style="${stkSum}" class="px-2 py-2 border-b-2 border-amber-100"><span class="text-[11px] font-extrabold text-amber-700">총점</span></th>`;
+                html += `<th style="${stkTrend}" class="px-2 py-2 border-b-2 border-amber-100 rounded-r-lg"><span class="text-[11px] font-extrabold text-amber-700">추이 📈</span></th>`;
             }
             html += '</tr></thead>';
 
@@ -2172,17 +2195,17 @@
             // ── 본문 ──
             html += '<tbody>';
             if (nS === 0 && nD > 0) {
-                html += `<tr><td colspan="${nD + 4}" class="text-center text-[11px] text-slate-400 py-4">위에서 학생을 추가하세요</td></tr>`;
+                html += `<tr><td colspan="${nV + 4}" class="text-center text-[11px] text-slate-400 py-4">위에서 학생을 추가하세요</td></tr>`;
             }
             gradebook.students.forEach((s, ri) => {
                 html += '<tr class="' + (ri % 2 ? 'bg-slate-50/40' : '') + '">';
-                html += `<td class="sticky left-0 z-10 px-2 py-1.5 border-b border-slate-100 ${ri % 2 ? 'bg-slate-50' : 'bg-white'}">
+                html += `<td class="sticky left-0 z-20 px-2 py-1.5 border-b border-slate-100 ${ri % 2 ? 'bg-slate-50' : 'bg-white'}">
                     <div class="flex items-center gap-1">
                         <input value="${escapeHtml(s.name)}" onchange="renameStudent('${s.id}', this.value)" class="w-[88px] font-bold text-slate-700 text-xs bg-transparent border border-transparent hover:border-slate-200 focus:border-indigo-400 rounded px-1.5 py-1 outline-none transition">
                         <button onclick="removeStudent('${s.id}')" class="text-slate-300 hover:text-rose-500 text-xs" title="학생 삭제"><i class="fa-solid fa-user-minus"></i></button>
                     </div>
                 </td>`;
-                gradebook.dates.forEach(d => {
+                visibleDates.forEach(d => {
                     const score = getScore(s.id, d.id);
                     const rank = ranks[d.id][s.id];
                     let chip = '';
@@ -2199,14 +2222,14 @@
                         </div>
                     </td>`;
                 });
-                // 학생별 요약 셀 (평균 / 총점 / 추이)
+                // 학생별 요약 셀 (평균 / 총점 / 추이) — 오른쪽 고정, 전체 날짜 기준
                 if (nD > 0) {
                     const st = studentStats(s.id);
                     const avgTxt = st.avg === null ? '<span class="text-slate-300">-</span>' : `<span class="text-amber-700 font-extrabold">${st.avg.toFixed(1)}</span>`;
                     const sumTxt = st.entered.length === 0 ? '<span class="text-slate-300">-</span>' : `<span class="text-slate-700 font-extrabold">${st.sum}</span>`;
-                    html += `<td class="px-2 py-1.5 border-b border-slate-100 text-center bg-amber-50/30 text-sm">${avgTxt}</td>`;
-                    html += `<td class="px-2 py-1.5 border-b border-slate-100 text-center bg-amber-50/30 text-sm">${sumTxt}</td>`;
-                    html += `<td class="px-2 py-1.5 border-b border-slate-100 text-center bg-amber-50/30">${sparklineSVG(s.id, globalMax)}</td>`;
+                    html += `<td style="${stkAvg}" class="px-2 py-1.5 border-b border-slate-100 text-center text-sm">${avgTxt}</td>`;
+                    html += `<td style="${stkSum}" class="px-2 py-1.5 border-b border-slate-100 text-center text-sm">${sumTxt}</td>`;
+                    html += `<td style="${stkTrend}" class="px-2 py-1.5 border-b border-slate-100 text-center">${sparklineSVG(s.id, globalMax)}</td>`;
                 }
                 html += '</tr>';
             });
@@ -2455,6 +2478,10 @@
         document.getElementById('gb-export').addEventListener('click', exportGradebookCSV);
         document.getElementById('gb-clear').addEventListener('click', clearGradebook);
         gbRankDate.addEventListener('change', () => drawRankingList(gbRankDate.value));
+        document.getElementById('gb-date-limit').addEventListener('change', (e) => {
+            gbDateLimit = e.target.value === 'all' ? 'all' : parseInt(e.target.value);
+            renderGradebook();
+        });
 
         // ══════════════════════════════════════════════════════════════
         // ☁️ CLOUD SYNC (구글 앱스 스크립트 + 구글 시트) — 여러 컴퓨터 공유용
